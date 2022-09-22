@@ -4,7 +4,7 @@ import javax.swing.*;
  * A convenience superclass for creating simple graphical applications.
  */
 @SuppressWarnings("serial")
-public class ApplicationWindow extends JFrame {
+public class AppWindow extends JFrame {
 	/**
 	 * Creates a new application window. The client provides application-specific
 	 * information.
@@ -17,7 +17,7 @@ public class ApplicationWindow extends JFrame {
 	 * @param panel  the application's drawing area and application-specific
 	 *               functionality
 	 */
-	public ApplicationWindow(String title, int width, int height, JComponent panel) {
+	public AppWindow(String title, int width, int height, JComponent panel) {
 		super(title);
 		setSize(width, height);
 		getContentPane().add(panel);

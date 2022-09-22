@@ -8,8 +8,8 @@ public class Point {
 	
 	/**
 	 * Creates the point (x, y)
-	 * @param x the x compoent of the point
-	 * @param y the y compoent of the point
+	 * @param x the x component of the point
+	 * @param y the y component of the point
 	 */
 	public Point(double x, double y) {
 		this.x = x;

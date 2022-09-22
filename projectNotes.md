@@ -12,7 +12,7 @@ There are several different algorithms for solving the problem.
 * Choosing points at random the point is selected that makes the most "outward" angle.
 * Marching on with that point, the process repeats, circling around the entire hull.   
 
-## Grahm's scan
+## Graham's scan
 Explained in [this video](https://www.youtube.com/watch?v=UUCKvHTP4Gg), Grahm's scan improves on the Jarvis March by  
 * ordering the verticies by angle from starting point.  
 This makes the algorithms $O(n \log n)$.  
