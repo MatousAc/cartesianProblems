@@ -10,7 +10,6 @@ import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class Canvass extends JPanel {
-	protected convexHull hull;
 	protected static final int NORMAL_SIZE = 10;
 	protected static final int ACTIVE_SIZE = NORMAL_SIZE + 6;
 	protected static final Color LIGHT_GRAY = new Color(220, 220, 220);
@@ -29,7 +28,7 @@ public class Canvass extends JPanel {
 
 		@Override // adds a point
 		public void mouseReleased(MouseEvent e) {
-			int x = e.getX() - getWidth(),
+			int x = e.getX(),
 				y = getHeight() - e.getY();
 			convexHull.addPoint(new Point(x, y));
 			isDragging = false;
@@ -39,7 +38,7 @@ public class Canvass extends JPanel {
 		@Override // detect if you run into a point
 		public void mouseMoved(MouseEvent e) {
 			if (!isDragging) {
-				checkActive(e.getX() - getWidth(), getHeight() - e.getY());
+				checkActive(e.getX(), getHeight() - e.getY());
 			}
 			repaint();
 		}
@@ -47,15 +46,14 @@ public class Canvass extends JPanel {
 		@Override // dragging points around
 		public void mouseDragged(MouseEvent e) {
 			if (isDragging && activePoint != null) {
-				activePoint.x = e.getX() - getWidth();
+				activePoint.x = e.getX();
 				activePoint.y = getHeight() - e.getY();
 			}
 			repaint();
 		}
 	};
 
-	public Canvass(convexHull h) {
-		hull = h;
+	public Canvass() {
 		setBackground(Color.WHITE);
 		setLayout(null);
 		addMouseListener(mouseAdapter);
@@ -71,8 +69,10 @@ public class Canvass extends JPanel {
 					convexHull.points.remove(activePoint); 
 					convexHull.problemSize--;
 					break;
-				case KeyEvent.VK_W: hull.printWidth(); break;
-				case KeyEvent.VK_G: convexHull.generatePoints(); break;
+				case KeyEvent.VK_G: 
+					convexHull.generatePoints(convexHull.problemSize); 
+					break;
+				case KeyEvent.VK_W: convexHull.printWidth(); break;
 				case KeyEvent.VK_SPACE: convexHull.solve(); break;
 				}
 				repaint();

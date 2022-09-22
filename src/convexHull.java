@@ -32,7 +32,7 @@ public class convexHull {
 
 
 	public static void solve() {
-		;
+		System.out.println("Solving using " + alg);
 	}
 	
 	private void show() {
@@ -45,23 +45,23 @@ public class convexHull {
 	 * @param point
 	 */
 	public static void addPoint(Point point) {
+		System.out.println("adding " + point);
 		points.add(point);
 		problemSize++;
 	}
 
-	public static void generatePoints() {
+	public static void generatePoints(int n) {
 		if (mode == modes.MANUAL) {
 			System.out.println("Cannot generate points in manual mode.");
 			return;
 		}
-		points.clear();
 		Random rand = new Random();
 		// set min && max
 		Point midPoint = new Point(canvass.getWidth() / 2, canvass.getHeight() / 2);
 		int maxRad = (int) (Math.min(canvass.getWidth() * 0.9, canvass.getHeight() * 0.9) / 2);
 		
 		// generate points using a midpoint and radius
-		for (int i = 0; i < problemSize; i++) {
+		for (int i = 0; i < n; i++) {
 			double angle = rand.nextDouble(Math.PI * 2);
 			// double radius = Math.max(rand.nextInt(maxRad), Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad)));
 			double radius = Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad));
@@ -71,7 +71,7 @@ public class convexHull {
 		}
 	}
 	
-	public void printWidth(){System.out.println(canvass.getWidth());}
+	public static void printWidth(){System.out.println(canvass.getWidth());}
 	
 	// utility f(x)s //
 	// returns singleton
@@ -126,7 +126,7 @@ public class convexHull {
 			canvass = new AppWindow(
 				"Convex Hull", 
 				(int)screenSize.getWidth(), (int)screenSize.getHeight(), 
-				new Canvass(single_instance));
+				new Canvass());
 		});
 	}
 }
