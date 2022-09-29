@@ -16,7 +16,7 @@ public class Geometry {
 	}
 	
 	private static double square( double value ) {
-		return ( value * value ) ;
+		return (value * value) ;
 	}
 	
 	/**
@@ -29,9 +29,7 @@ public class Geometry {
 	 *         other; otherwise, returns false
 	 */
 	public static boolean equals(double a, double b) {
-		if (abs( a - b ) < .0001 )
-			return true ;
-		return false ;
+		return abs( a - b ) < .00001;
 	}
 
 
@@ -42,8 +40,7 @@ public class Geometry {
 	 * @return the distance between 
 	 */
 	public static double distance(Point p1, Point p2) {
-		double distance = Math.sqrt(( square( p2.x - p1.x ) + square( p2.y - p1.y ) )) ;
-		return distance ;
+		return Math.sqrt((square( p2.x - p1.x ) + square( p2.y - p1.y )));
 	}
 
 	/**
@@ -52,11 +49,11 @@ public class Geometry {
 	 * @param p1 the first point
 	 * @param p2 the second point
 	 * @return the slope of the line that passes through points
-	 *         p1 and p2
+	 *         p1 and p2. -1 if the points are same.
 	 */
 	public static double slope(Point p1, Point p2) {
-		equalExeption( p1.x, p2.x, p1.y, p2.y ) ;
-		
+		if (p1 == p2) return -1; // ensure start point is at front
+
 		if ( equals( p1.x, p2.x ))
 			return Double.POSITIVE_INFINITY ;
 		double m = (( p2.y - p1.y ) / ( p2.x - p1.x )) ;
