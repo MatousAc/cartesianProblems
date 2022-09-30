@@ -29,6 +29,7 @@ public class Canvass extends JPanel {
 		colours.put("lightBlue", new Color(168, 213, 226));
 		colours.put("start", new Color(28, 114, 147));
 		colours.put("pqr", new Color(249, 166, 32));
+		colours.put("pqrL", new Color(253, 21, 27));
 		colours.put("solvedP", new Color(84, 140, 47));
 		colours.put("solvedL", new Color(60, 73, 17));
 		colours.put("default", new Color(11, 5, 0));
@@ -77,7 +78,7 @@ public class Canvass extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
-					case KeyEvent.VK_G: 
+				case KeyEvent.VK_G: 
 					hull.generatePoints(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
@@ -89,6 +90,13 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_BACK_SPACE:
 					hull.removePointManually(selectedPoint);
 					break;
+				case KeyEvent.VK_PLUS:
+				case KeyEvent.VK_EQUALS:
+					hull.speed = hull.speed.next(); break;
+				case KeyEvent.VK_MINUS:
+					hull.speed = hull.speed.previous(); break;
+				case KeyEvent.VK_T:
+					hull.alg = hull.alg.toggle(); break;
 				default: helpOn = true;
 				}
 				repaint();
@@ -123,6 +131,7 @@ public class Canvass extends JPanel {
 		g2.scale(1, -1); // Invert y-axis
 		drawHull(g2);
 		drawPoints(g2);
+		
 		g2.scale(1, -1);
 		drawSettings(g2);
 		if (helpOn) drawHelp(g2);
@@ -152,7 +161,7 @@ public class Canvass extends JPanel {
 		if (p == start) {
 			g.setColor(colours.get("start"));
 			size *= 1.5;
-		} else if (p == P || p == Q || p == R) {
+		} else if (!hull.solved && (p == P || p == Q || p == R)) {
 			g.setColor(colours.get("pqr"));
 			size *= 1.1;
 		} else if (hull.solution.contains(p)) {
@@ -178,38 +187,45 @@ public class Canvass extends JPanel {
 		drawPoint(g, p, false);
 	}
 
-	protected void drawLine(Graphics2D g2, Point pt1, Point pt2) {
+	protected void drawLine(Graphics2D g2, Point p1, Point p2) {
+		if (!hull.solved && (p1 == P || p1 == Q)) {
+			g2.setColor(colours.get("pqrL"));
+		}
 		g2.drawLine(
-			(int) Math.round(pt1.x), 
-			(int) Math.round(pt1.y), 
-			(int) Math.round(pt2.x), 
-			(int) Math.round(pt2.y)
+			(int) Math.round(p1.x), 
+			(int) Math.round(p1.y), 
+			(int) Math.round(p2.x), 
+			(int) Math.round(p2.y)
 		);
+		g2.setColor(colours.get("solvedL"));
 	}
 
 	private void drawHelp(Graphics2D g2) {
 		ArrayList<String> keys = new ArrayList<>();
 		ArrayList<String> commands = new ArrayList<>();
-		keys.add("Key"); 	commands.add("- Command");
-		keys.add("====");	commands.add("===================");
-		keys.add("G"); 		commands.add("- generate points");
-		keys.add("S"); 		commands.add("- solve problem");
-		keys.add("ESC"); 	commands.add("- erase points/dismiss help");
-		keys.add("DEL"); 	commands.add("- Remove active point");
+		keys.add("Key"); 	commands.add("Command");
+		keys.add("======");commands.add("===================");
+		keys.add("G"); 		commands.add("generate points");
+		keys.add("S"); 		commands.add("solve problem");
+		keys.add("ESC"); 	commands.add("erase points/dismiss help");
+		keys.add("DEL"); 	commands.add("remove active point");
+		keys.add("+/-"); 	commands.add("increase/decrease speed");
+		keys.add("T"); 		commands.add("toggle algorithm");
 
 		for (int i = 0; i < keys.size(); i++) {
 			g2.drawString(keys.get(i), 20, 20 - y(i * LINE_HEIGHT));
-			g2.drawString(commands.get(i), 60, 20 - y(i * LINE_HEIGHT));
+			g2.drawString(commands.get(i), 70, 20 - y(i * LINE_HEIGHT));
 		}
 	}
 
 	private void drawSettings(Graphics2D g2) {
 		ArrayList<String> settings = new ArrayList<>();
 		ArrayList<String> values = new ArrayList<>();
-		settings.add("Setting"); 		values.add("- Value");
+		settings.add("Setting"); 		values.add("Value");
 		settings.add("========="); 	values.add("=============");
-		settings.add("algorithm"); 	values.add(hull.getAlg());
-		settings.add("speed"); 			values.add(hull.getSpeed());
+		settings.add("mode"); 				values.add(hull.mode.toString());
+		settings.add("algorithm"); 	values.add(hull.alg.toString());
+		settings.add("speed"); 			values.add(hull.speed.toString());
 		settings.add("N"); 					values.add(((Integer) hull.n).toString());
 
 		for (int i = 0; i < settings.size(); i++) {

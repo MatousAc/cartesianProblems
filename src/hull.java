@@ -17,16 +17,14 @@ public class hull {
 	}
 	
 	// mode modes
-	private enum modes { MANUAL, AUTOVISUAL, AUTOMATIC }
-	private enum speeds { UNRESTRAINED, FAST, MEDIUM, SLOW, PROMPT }
-	private enum algs { JARVIS, GRAHAM }
+	enum modes { MANUAL, AUTOVISUAL, AUTOMATIC }
 
 	// high level resources
 	private static hull single_instance = null;
 	protected static Canvass canvass;
-	private static modes mode;
-	private static speeds speed;
-	private static algs alg;
+	static modes mode;
+	static speeds speed = speeds.UNRESTRAINED;
+	static algs alg = algs.JARVIS;
 	static int n = 0;
 	static boolean solved = false;
 	// basic problem resources
@@ -80,7 +78,7 @@ public class hull {
 	 * Adds a point when user interacts with UI.
 	 * @param p
 	 */
-	public static void addPointManually(Point p) {
+	static void addPointManually(Point p) {
 		points.add(p);
 	}
 	/**
@@ -88,7 +86,7 @@ public class hull {
 	 * Makes unsolved.
 	 * @param p
 	 */
-	public static void removePointManually(Point p) {
+	static void removePointManually(Point p) {
 		points.remove(p);
 		unsolve();
 	}
@@ -124,8 +122,6 @@ public class hull {
 			points.add(new Point(x, y));
 		}
 	}
-	
-	public static void printWidth(){System.out.println(canvass.getWidth());}
 	
 	// utility f(x)s //
 	/**
@@ -174,9 +170,6 @@ public class hull {
 		canvass.R = r;
 	}
 
-	public static String getAlg() { return alg.toString(); }
-	public static String getSpeed() { return speed.toString(); }
-	
 	private static boolean isAuto() { return mode == modes.AUTOMATIC; }
 
 	private static void getHyperParams() {
@@ -187,21 +180,6 @@ public class hull {
 			case "autovisual": mode = modes.AUTOVISUAL; break;
 			case "automatic": mode = modes.AUTOMATIC; break;
 			default: mode = modes.AUTOMATIC; break;
-		}
-
-		System.out.print("Select Algorithm (graham): ");
-		alg = scan.next().toLowerCase() == "jarvis" ? algs.JARVIS : algs.GRAHAM;
-		
-		if (mode == modes.AUTOMATIC) { speed = speeds.UNRESTRAINED; }
-		else {
-			System.out.print("Select Speed (unrestrained|fast|medium|slow|prompt): ");
-			switch (scan.next().toLowerCase()) {
-				case "fast": speed = speeds.FAST; break;
-				case "medium": speed = speeds.MEDIUM; break;
-				case "slow": speed = speeds.SLOW; break;
-				case "prompt": speed = speeds.PROMPT; break;
-				default: speed = speeds.UNRESTRAINED; break;
-			}
 		}
 		
 		if (mode != modes.MANUAL) {
