@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class hull {
 		
@@ -26,7 +27,7 @@ public class hull {
 	private static modes mode;
 	private static speeds speed;
 	private static algs alg;
-	static int problemSize = 0;
+	static int n = 0;
 	static boolean solved = false;
 	// basic problem resources
 	static ArrayList<Point> points = new ArrayList<Point>();
@@ -36,29 +37,41 @@ public class hull {
 	 * Solves using specified algorithm, visibility, and speed
 	 * @throws IOException
 	 */
-	public static void solve() throws IOException {
+	public static void solve() {
+		unsolve();
 		if (points.size() < 3) {
 			System.out.print("Convex Hull Impossible");
 			return;
-		} else  if (solved) { return; }
+		}
 
-		System.out.println("Solving using " + alg);
 		long startTime = System.currentTimeMillis();
 		switch (alg) {
 			case JARVIS: jarvisMarch(); break;
 			case GRAHAM: grahamScan.makeHull(); break;
 		}
-		if (mode == modes.AUTOMATIC) {
+		solved = true;
+		
+		if (isAuto()) {
 			long endTime = System.currentTimeMillis();
 			double duration = (endTime - startTime) / 1000.0;
 			System.out.print("Duration: " + duration);
 			Path path = Paths.get("performance.csv");
 			String res = alg + "," + duration;
 
-			Files.write(path, res.getBytes());
+			try {
+				Files.write(path, res.getBytes());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
+	static void unsolve() {
+		solved = false;
+		solution.clear();
+	}
+
 	private static void jarvisMarch() {}
 
 	
@@ -68,9 +81,7 @@ public class hull {
 	 * @param p
 	 */
 	public static void addPointManually(Point p) {
-		solved = false;
 		points.add(p);
-		problemSize++;
 	}
 	/**
 	 * Removes a point from the problem. Decreases size.
@@ -78,30 +89,27 @@ public class hull {
 	 * @param p
 	 */
 	public static void removePointManually(Point p) {
-		solved = false;
 		points.remove(p);
-		problemSize--;
+		unsolve();
 	}
 
 	/**
 	 * Resets the problem.
 	 */
 	public static void reset() {
-		solved = false;
+		unsolve();
 		points.clear();
-		problemSize = 0;
 	}
 
 	/**
-	 * Generates n points on canvas in a radial patter.
-	 * @param n
+	 * Generates points on canvas in a radial patter.
 	 */
-	public static void generatePoints(int n) {
+	public static void generatePoints() {
 		if (mode == modes.MANUAL) {
 			System.out.println("Cannot generate points in manual mode.");
 			return;
 		}
-		solved = false;
+		unsolve();
 		Random rand = new Random();
 		// set min && max
 		Point midPoint = new Point(canvass.getWidth() / 2, canvass.getHeight() / 2);
@@ -110,7 +118,6 @@ public class hull {
 		// generate points using a midpoint and radius
 		for (int i = 0; i < n; i++) {
 			double angle = rand.nextDouble(Math.PI * 2);
-			// double radius = Math.max(rand.nextInt(maxRad), Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad)));
 			double radius = Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad));
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
@@ -137,14 +144,39 @@ public class hull {
 	// handling the different modes of the application
 	static void show() {
 		if (isAuto()) return;
+		// SwingUtilities.invokeLater(new Runnable() {
+		// 	public void run() {
+		// 		canvass.repaint();
+		// 	}
+		// });
+		
 		canvass.repaint();
+		// wait(200);
 	}
 
-	static void addLeftBottom(Point lb) {
+	public static void wait(int ms) {
+		try {
+			TimeUnit.MILLISECONDS.sleep(300);
+		} catch(InterruptedException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	static void setStart(Point p) {
 		if (isAuto()) return;
-		canvass.leftBottom = lb;
+		canvass.start = p;
 	}
 
+	static void setPQR(Point p, Point q, Point r) {
+		if (isAuto()) return;
+		canvass.P = p;
+		canvass.Q = q;
+		canvass.R = r;
+	}
+
+	public static String getAlg() { return alg.toString(); }
+	public static String getSpeed() { return speed.toString(); }
+	
 	private static boolean isAuto() { return mode == modes.AUTOMATIC; }
 
 	private static void getHyperParams() {
@@ -173,8 +205,8 @@ public class hull {
 		}
 		
 		if (mode != modes.MANUAL) {
-			System.out.print("Select Problem Size (integer): ");
-			problemSize = scan.nextInt();
+			System.out.print("Select n (integer): ");
+			n = scan.nextInt();
 		}
 
 		scan.close();

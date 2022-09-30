@@ -49,10 +49,10 @@ public class Geometry {
 	 * @param p1 the first point
 	 * @param p2 the second point
 	 * @return the slope of the line that passes through points
-	 *         p1 and p2. -1 if the points are same.
+	 *         p1 and p2. -infinity if the points are same.
 	 */
 	public static double slope(Point p1, Point p2) {
-		if (p1 == p2) return -1; // ensure start point is at front
+		if (p1 == p2) return Double.NEGATIVE_INFINITY; // ensure start point is at front
 
 		if ( equals( p1.x, p2.x ))
 			return Double.POSITIVE_INFINITY ;

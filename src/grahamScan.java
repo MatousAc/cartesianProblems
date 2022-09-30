@@ -8,9 +8,9 @@ public class grahamScan {
 	public static void makeHull() {
 		ArrayList<Point> points = hull.points;
 		ArrayList<Point> res = hull.solution;
-		start = findLeftBottomPoint();
+		start = findBasePoint();
 		// Collections.swap(hull.points, hull.points.indexOf(start), 0);
-		hull.addLeftBottom(start);
+		hull.setStart(start);
 		hull.show();
 
 		Collections.sort(points, compareBySlope); // uses custom comparer
@@ -20,8 +20,14 @@ public class grahamScan {
 		int size = res.size();
 		for (int i = 2; i < points.size(); i++) {
 			size = res.size();
+			// System.out.println("solution size = " + res);
+			// System.out.println("solution size = " + size);
+			Point P = res.get(size - 2);
+			Point Q = res.get(size - 1);
 			Point R = points.get(i);
-			if (orientation(res.get(size - 2), getQ(), R) == bend.COUNTERCLOCKWISE) {
+			hull.setPQR(P, Q, R);
+			hull.show();
+			if (orientation(P, Q, R) == bend.COUNTERCLOCKWISE) {
 				res.add(R);
 			} else {
 				// sol.set(sol.size() - 1, R);
@@ -33,7 +39,7 @@ public class grahamScan {
 		
 	}
 
-	private static Point findLeftBottomPoint() {
+	private static Point findBasePoint() {
 		Point leftBottom = hull.points.get(0);
 		for (Point p : hull.points) {
 			if (p.x < leftBottom.x) {
@@ -64,7 +70,4 @@ public class grahamScan {
 		return (val > 0)? bend.CLOCKWISE: bend.COUNTERCLOCKWISE; // clock or counterclock wise
 	}
 	
-	static Point getP() { return hull.solution.get(hull.solution.size() - 2); }
-	static Point getQ() { return hull.solution.get(hull.solution.size() - 1); }
-	
-	}
+}
