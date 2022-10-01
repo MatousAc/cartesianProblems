@@ -1,35 +1,49 @@
 import java.awt.*;
 import javax.swing.SwingUtilities;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 public class hull {
-		
-	public static void main(String[] args) {
-		getHyperParams();
-		makeCanvass();
-	}
-	
-	// mode modes
-	enum modes { MANUAL, AUTOVISUAL, AUTOMATIC }
-
 	// high level resources
 	private static hull single_instance = null;
 	protected static Canvass canvass;
 	static modes mode;
-	static speeds speed = speeds.UNRESTRAINED;
-	static algs alg = algs.JARVIS;
+	// static speeds speed = speeds.UNRESTRAINED;
+	static speeds speed = speeds.SLOW;
+	// static algs alg = algs.JARVIS;
+	static algs alg = algs.GRAHAM;
 	static int n = 0;
 	static boolean solved = false;
 	// basic problem resources
 	static ArrayList<Point> points = new ArrayList<Point>();
 	static ArrayList<Point> solution = new ArrayList<Point>();
+
+	public static void main(String[] args) {
+		getParams();
+		if (isAuto()) test();
+		else makeCanvass();
+	}
+
+	public static void test() {
+		Path path = Paths.get("performance.csv");
+		for (int i = 0; i < n;) {}
+		long startTime = System.currentTimeMillis();
+		solve();
+		long endTime = System.currentTimeMillis();
+		double duration = (endTime - startTime) / 1000.0;
+		System.out.print("Duration: " + duration);
+		String res = alg + "," + duration;
+
+		try {
+			Files.write(path, res.getBytes());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Solves using specified algorithm, visibility, and speed
@@ -42,26 +56,9 @@ public class hull {
 			return;
 		}
 
-		long startTime = System.currentTimeMillis();
 		switch (alg) {
-			case JARVIS: jarvisMarch(); break;
+			case JARVIS: jarvisMarch.makeHull(); break;
 			case GRAHAM: grahamScan.makeHull(); break;
-		}
-		solved = true;
-		
-		if (isAuto()) {
-			long endTime = System.currentTimeMillis();
-			double duration = (endTime - startTime) / 1000.0;
-			System.out.print("Duration: " + duration);
-			Path path = Paths.get("performance.csv");
-			String res = alg + "," + duration;
-
-			try {
-				Files.write(path, res.getBytes());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 	
@@ -69,9 +66,6 @@ public class hull {
 		solved = false;
 		solution.clear();
 	}
-
-	private static void jarvisMarch() {}
-
 	
 	// helpers //
 	/**
@@ -137,25 +131,35 @@ public class hull {
 	// private constructor
 	private hull() {}
 	
-	// handling the different modes of the application
+	/**
+	 * gets our gui to repaint if applicable
+	 */
 	static void show() {
 		if (isAuto()) return;
-		// SwingUtilities.invokeLater(new Runnable() {
-		// 	public void run() {
-		// 		canvass.repaint();
-		// 	}
-		// });
-		
 		canvass.repaint();
-		// wait(200);
+		wait(delay());
 	}
 
-	public static void wait(int ms) {
-		try {
-			TimeUnit.MILLISECONDS.sleep(300);
-		} catch(InterruptedException ex) {
-			ex.printStackTrace();
+	private static int delay() {
+		switch (speed) {
+			case UNRESTRAINED: 	return 0;
+			case LIGHTNING:			return 1;
+			case FAST: 					return 25;
+			case MEDIUM: 				return 100;
+			case SLOW: 					return 500;
+			case SLOTH: 				return 1000;
+			case PROMPT:
+				canvass.isPaused = true;
+				while (canvass.isPaused) {
+					wait(10);
+				};
+				default: return 0;
 		}
+	}
+
+	private static void wait(int ms) {
+		try { Thread.sleep(ms); }
+		catch (Exception e) { e.printStackTrace(); }
 	}
 
 	static void setStart(Point p) {
@@ -163,16 +167,9 @@ public class hull {
 		canvass.start = p;
 	}
 
-	static void setPQR(Point p, Point q, Point r) {
-		if (isAuto()) return;
-		canvass.P = p;
-		canvass.Q = q;
-		canvass.R = r;
-	}
-
 	private static boolean isAuto() { return mode == modes.AUTOMATIC; }
 
-	private static void getHyperParams() {
+	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
 		System.out.print("Select Mode (manual|autovisual|automatic): ");
 		switch (scan.next().toLowerCase()) {
@@ -183,7 +180,8 @@ public class hull {
 		}
 		
 		if (mode != modes.MANUAL) {
-			System.out.print("Select n (integer): ");
+			String msg = "Select " + ((isAuto()) ? "max " : "") + "N : ";
+			System.out.print(msg);
 			n = scan.nextInt();
 		}
 

@@ -1,59 +1,84 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
  
-public class grahamScan {
+public class grahamScan extends convexHullAlgorithm{
 	private enum bend { NONE, CLOCKWISE, COUNTERCLOCKWISE }
-	private static Point start;
+	static Point P = null;
+	static Point Q = null;
+	static Point R = null;
+
 	public static void makeHull() {
-		ArrayList<Point> points = hull.points;
-		ArrayList<Point> res = hull.solution;
+		ArrayList<Point> points = hull.points, sol = hull.solution;
 		start = findBasePoint();
-		// Collections.swap(hull.points, hull.points.indexOf(start), 0);
 		hull.setStart(start);
 		hull.show();
 
-		Collections.sort(points, compareBySlope); // uses custom comparer
+		Collections.sort(points, slopeCompare); // uses custom comparer
 		// construct solution
-		res.add(points.get(0));
-		res.add(points.get(1));
-		int size = res.size();
-		for (int i = 2; i < points.size(); i++) {
-			size = res.size();
-			// System.out.println("solution size = " + res);
-			// System.out.println("solution size = " + size);
-			Point P = res.get(size - 2);
-			Point Q = res.get(size - 1);
-			Point R = points.get(i);
-			hull.setPQR(P, Q, R);
-			hull.show();
-			if (orientation(P, Q, R) == bend.COUNTERCLOCKWISE) {
-				res.add(R);
-			} else {
-				// sol.set(sol.size() - 1, R);
-				res.remove(size - 1);
-				i--;
-			}
-			hull.show();
+		Iterator<Point> iter = points.iterator();
+		sol.add(iter.next()); sol.add(iter.next()); sol.add(iter.next());
+		while (iter.hasNext()) {
+			newPQR(); hull.show();
+			if (bendsLeft(P, Q, R)) {
+				sol.add(iter.next());
+			} else { sol.remove(Q); }
 		}
 		
-	}
-
-	private static Point findBasePoint() {
-		Point leftBottom = hull.points.get(0);
-		for (Point p : hull.points) {
-			if (p.x < leftBottom.x) {
-				leftBottom = p;
-			} else if (p.x == leftBottom.x && p.y < leftBottom.y) { 
-				leftBottom = p;
-			}
+		// we can still backtrack indefinitely
+		newPQR(); hull.show();
+		while (!bendsLeft(P, Q, R)) {
+			sol.remove(Q);
+			newPQR(); hull.show();
 		}
-		return leftBottom;
+		// cleanup
+		P = null; Q = null; R = null;
+		hull.solved = true;
+		hull.show();
 	}
 
-	// compares using slope relative to start point. start point's relative slope is -1
-	static Comparator<Point> compareBySlope = (Point p1, Point p2) ->
-		((Double) Geometry.slope(start, p1)).compareTo(Geometry.slope(start, p2));
+	private static void solPop() {
+		hull.solution.remove(hull.solution.size() - 1);
+	}
+
+	private static void printCurrentState() {
+		System.out.println("sol: " + hull.solution);
+		System.out.println("P: " + P + " Q: " + Q + " R: " + R);
+	}
+
+	private static void newPQR() {
+		P = back(2); Q = back(1); R = back(0);
+	}
+	private static Point back(int d) {
+		return hull.solution.get(hull.solution.size() - d - 1);
+	}
+	private static boolean bendsLeft(Point P, Point Q, Point R) {
+		return orientation(P, Q, R) == bend.COUNTERCLOCKWISE;
+	}
+
+	/**
+	 * compares using values of slope between each point and
+	 * the start point. with colinear points, the one closer
+	 * to the starting point is "less". starting point is less
+	 * than any other point
+	 * @param p1 point on left of comparison
+	 * @param p2 point on right of comparison
+	 * @return -1 if p1 < p2, 1 otherwise
+	 */
+	static Comparator<Point> slopeCompare = (Point p1, Point p2) -> {
+			// make sure starting point always goes to front
+			if (start == p1) return -1;
+			else if (start == p2) return 1;
+			// order by slope w/ start point
+			double dif = (Geometry.slope(start, p1) - Geometry.slope(start, p2));
+			if (dif < 0) return -1;
+			else if (dif > 0) return 1;
+			// here, dif = 0, so these are colinear points. we put the nearest one first
+			double d1 = Geometry.distance(start, p1), d2 = Geometry.distance(start, p2);
+			if (d1 < d2) return -1;
+			else return 1;
+		};
 
 	/**
 	 * Tells us whether a 3-point sequence is 
@@ -69,5 +94,4 @@ public class grahamScan {
 		if (val == 0) return bend.NONE;  // collinear
 		return (val > 0)? bend.CLOCKWISE: bend.COUNTERCLOCKWISE; // clock or counterclock wise
 	}
-	
 }

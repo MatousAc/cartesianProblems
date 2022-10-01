@@ -12,26 +12,25 @@ public class Canvass extends JPanel {
 	protected static final int CLOSENESS = NORMAL_SIZE + 6;
 	private static final int LINE_HEIGHT = 18;
 	static Map<String, Color> colours = new HashMap<String, Color>();
-	protected boolean isDragging = false;
 	MouseAdapter mouseAdapter;
+	protected boolean isDragging = false;
+	boolean isPaused = false;
 	private boolean helpOn = false;
 	
 	private Point selectedPoint = null;
 	Point start = null;
-	Point P = null;
-	Point Q = null;
-	Point R = null;
+
 
 	public Canvass() {
 		// design
 		setBackground(Color.WHITE);
 		setLayout(null);
 		colours.put("lightBlue", new Color(168, 213, 226));
-		colours.put("start", new Color(28, 114, 147));
-		colours.put("pqr", new Color(249, 166, 32));
-		colours.put("pqrL", new Color(253, 21, 27));
-		colours.put("solvedP", new Color(84, 140, 47));
-		colours.put("solvedL", new Color(60, 73, 17));
+		colours.put("darkBlue", new Color(28, 114, 147));
+		colours.put("gold", new Color(249, 166, 32));
+		colours.put("red", new Color(253, 21, 27));
+		colours.put("lightGreen", new Color(84, 140, 47));
+		colours.put("darkGreen", new Color(60, 73, 17));
 		colours.put("default", new Color(11, 5, 0));
 
 		// events
@@ -81,8 +80,9 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_G: 
 					hull.generatePoints(); break;
 				case KeyEvent.VK_S:
+				new Thread(() -> hull.solve()).start(); break;
 				case KeyEvent.VK_SPACE:
-					hull.solve(); break;
+				case KeyEvent.VK_C: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
 					if (helpOn) helpOn = false;
 					else hull.reset(); break;
@@ -92,9 +92,9 @@ public class Canvass extends JPanel {
 					break;
 				case KeyEvent.VK_PLUS:
 				case KeyEvent.VK_EQUALS:
-					hull.speed = hull.speed.next(); break;
+					hull.speed = hull.speed.increase(); break;
 				case KeyEvent.VK_MINUS:
-					hull.speed = hull.speed.previous(); break;
+					hull.speed = hull.speed.decrease(); break;
 				case KeyEvent.VK_T:
 					hull.alg = hull.alg.toggle(); break;
 				default: helpOn = true;
@@ -144,7 +144,7 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawHull(Graphics2D g2) {
-		g2.setColor(colours.get("solvedL"));
+		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		Iterator<Point> i = hull.solution.iterator();
 		Point curPoint = (i.hasNext()) ? i.next() : null;
@@ -159,13 +159,13 @@ public class Canvass extends JPanel {
 		// control colour and size
 		int size = NORMAL_SIZE;
 		if (p == start) {
-			g.setColor(colours.get("start"));
+			g.setColor(colours.get("darkBlue"));
 			size *= 1.5;
-		} else if (!hull.solved && (p == P || p == Q || p == R)) {
-			g.setColor(colours.get("pqr"));
+		} else if (p == grahamScan.P || p == grahamScan.Q || p == grahamScan.R) {
+			g.setColor(colours.get("gold"));
 			size *= 1.1;
 		} else if (hull.solution.contains(p)) {
-			g.setColor(colours.get("solvedP"));
+			g.setColor(colours.get("lightGreen"));
 		}
 		// draw point
 		int actSz = size + 6;
@@ -188,8 +188,8 @@ public class Canvass extends JPanel {
 	}
 
 	protected void drawLine(Graphics2D g2, Point p1, Point p2) {
-		if (!hull.solved && (p1 == P || p1 == Q)) {
-			g2.setColor(colours.get("pqrL"));
+		if (p1 == grahamScan.P || p1 == grahamScan.Q) {
+			g2.setColor(colours.get("red"));
 		}
 		g2.drawLine(
 			(int) Math.round(p1.x), 
@@ -197,7 +197,7 @@ public class Canvass extends JPanel {
 			(int) Math.round(p2.x), 
 			(int) Math.round(p2.y)
 		);
-		g2.setColor(colours.get("solvedL"));
+		g2.setColor(colours.get("darkGreen"));
 	}
 
 	private void drawHelp(Graphics2D g2) {
@@ -205,8 +205,9 @@ public class Canvass extends JPanel {
 		ArrayList<String> commands = new ArrayList<>();
 		keys.add("Key"); 	commands.add("Command");
 		keys.add("======");commands.add("===================");
-		keys.add("G"); 		commands.add("generate points");
+		keys.add("G"); 		commands.add("generate N points");
 		keys.add("S"); 		commands.add("solve problem");
+		keys.add("space"); commands.add("prompt next step");
 		keys.add("ESC"); 	commands.add("erase points/dismiss help");
 		keys.add("DEL"); 	commands.add("remove active point");
 		keys.add("+/-"); 	commands.add("increase/decrease speed");
@@ -214,7 +215,7 @@ public class Canvass extends JPanel {
 
 		for (int i = 0; i < keys.size(); i++) {
 			g2.drawString(keys.get(i), 20, 20 - y(i * LINE_HEIGHT));
-			g2.drawString(commands.get(i), 70, 20 - y(i * LINE_HEIGHT));
+			g2.drawString(commands.get(i), 80, 20 - y(i * LINE_HEIGHT));
 		}
 	}
 
@@ -229,8 +230,8 @@ public class Canvass extends JPanel {
 		settings.add("N"); 					values.add(((Integer) hull.n).toString());
 
 		for (int i = 0; i < settings.size(); i++) {
-			g2.drawString(settings.get(i), 20, -100 + i * LINE_HEIGHT);
-			g2.drawString(values.get(i), 110, -100 + i * LINE_HEIGHT);
+			g2.drawString(settings.get(i), 20, -120 + i * LINE_HEIGHT);
+			g2.drawString(values.get(i), 120, -120 + i * LINE_HEIGHT);
 		}
 	}
 
