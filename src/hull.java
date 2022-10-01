@@ -3,7 +3,6 @@ import javax.swing.SwingUtilities;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 public class hull {
@@ -15,7 +14,8 @@ public class hull {
 	static speeds speed = speeds.SLOW;
 	// static algs alg = algs.JARVIS;
 	static algs alg = algs.GRAHAM;
-	static int n = 0;
+	static distributions dist = distributions.RADIAL;
+	static int genSize = 0;
 	static boolean solved = false;
 	// basic problem resources
 	static ArrayList<Point> points = new ArrayList<Point>();
@@ -29,7 +29,7 @@ public class hull {
 
 	public static void test() {
 		Path path = Paths.get("performance.csv");
-		for (int i = 0; i < n;) {}
+		for (int i = 0; i < genSize;) {}
 		long startTime = System.currentTimeMillis();
 		solve();
 		long endTime = System.currentTimeMillis();
@@ -52,10 +52,9 @@ public class hull {
 	public static void solve() {
 		unsolve();
 		if (points.size() < 3) {
-			System.out.print("Convex Hull Impossible");
+			System.out.print("convex hull impossible");
 			return;
 		}
-
 		switch (alg) {
 			case JARVIS: jarvisMarch.makeHull(); break;
 			case GRAHAM: grahamScan.makeHull(); break;
@@ -65,6 +64,10 @@ public class hull {
 	static void unsolve() {
 		solved = false;
 		solution.clear();
+		grahamScan.start = null;
+		grahamScan.P = null;
+		grahamScan.Q = null;
+		grahamScan.R = null;
 	}
 	
 	// helpers //
@@ -96,25 +99,10 @@ public class hull {
 	/**
 	 * Generates points on canvas in a radial patter.
 	 */
-	public static void generatePoints() {
-		if (mode == modes.MANUAL) {
-			System.out.println("Cannot generate points in manual mode.");
-			return;
-		}
+	public static void visualPointGeneration() {
 		unsolve();
-		Random rand = new Random();
-		// set min && max
-		Point midPoint = new Point(canvass.getWidth() / 2, canvass.getHeight() / 2);
-		int maxRad = (int) (Math.min(canvass.getWidth() * 0.9, canvass.getHeight() * 0.9) / 2);
-		
-		// generate points using a midpoint and radius
-		for (int i = 0; i < n; i++) {
-			double angle = rand.nextDouble(Math.PI * 2);
-			double radius = Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad));
-			int x = (int) (Math.cos(angle) * radius + midPoint.x);
-			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			points.add(new Point(x, y));
-		}
+		if (dist == distributions.RADIAL) generate.radial();
+		else generate.rectangular();
 	}
 	
 	// utility f(x)s //
@@ -162,29 +150,18 @@ public class hull {
 		catch (Exception e) { e.printStackTrace(); }
 	}
 
-	static void setStart(Point p) {
-		if (isAuto()) return;
-		canvass.start = p;
-	}
-
-	private static boolean isAuto() { return mode == modes.AUTOMATIC; }
-
 	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
-		System.out.print("Select Mode (manual|autovisual|automatic): ");
+		System.out.print("Select Mode (visual|automatic): ");
 		switch (scan.next().toLowerCase()) {
-			case "manual": mode = modes.MANUAL; break;
-			case "autovisual": mode = modes.AUTOVISUAL; break;
-			case "automatic": mode = modes.AUTOMATIC; break;
+			case "v":
+			case "visual": mode = modes.VISUAL; break;
 			default: mode = modes.AUTOMATIC; break;
 		}
 		
-		if (mode != modes.MANUAL) {
-			String msg = "Select " + ((isAuto()) ? "max " : "") + "N : ";
-			System.out.print(msg);
-			n = scan.nextInt();
-		}
-
+		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size : ";
+		System.out.print(msg);
+		genSize = scan.nextInt();
 		scan.close();
 	}
 
@@ -197,4 +174,6 @@ public class hull {
 				canvass = new Canvass());
 		});
 	}
+
+	private static boolean isAuto() { return mode == modes.AUTOMATIC; }
 }

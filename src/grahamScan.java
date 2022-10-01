@@ -12,7 +12,6 @@ public class grahamScan extends convexHullAlgorithm{
 	public static void makeHull() {
 		ArrayList<Point> points = hull.points, sol = hull.solution;
 		start = findBasePoint();
-		hull.setStart(start);
 		hull.show();
 
 		Collections.sort(points, slopeCompare); // uses custom comparer
@@ -25,7 +24,7 @@ public class grahamScan extends convexHullAlgorithm{
 				sol.add(iter.next());
 			} else { sol.remove(Q); }
 		}
-		
+
 		// we can still backtrack indefinitely
 		newPQR(); hull.show();
 		while (!bendsLeft(P, Q, R)) {
@@ -77,6 +76,7 @@ public class grahamScan extends convexHullAlgorithm{
 			// here, dif = 0, so these are colinear points. we put the nearest one first
 			double d1 = Geometry.distance(start, p1), d2 = Geometry.distance(start, p2);
 			if (d1 < d2) return -1;
+			// PAINT SLOPES WHILE SORTING
 			else return 1;
 		};
 

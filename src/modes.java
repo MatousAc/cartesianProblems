@@ -1,6 +1,5 @@
 enum modes { 
-	MANUAL, 
-	AUTOVISUAL, 
+	VISUAL, 
 	AUTOMATIC;
 
 	@Override
