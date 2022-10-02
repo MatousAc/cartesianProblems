@@ -5,9 +5,9 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class hull {
+public class core {
 	// high level resources
-	private static hull single_instance = null;
+	private static core single_instance = null;
 	protected static Canvass canvass;
 	static modes mode;
 	// static speeds speed = speeds.UNRESTRAINED;
@@ -19,7 +19,7 @@ public class hull {
 	static boolean solved = false;
 	// basic problem resources
 	static ArrayList<Point> points = new ArrayList<Point>();
-	static ArrayList<Point> solution = new ArrayList<Point>();
+	static ArrayList<Point> hull = new ArrayList<Point>();
 
 	public static void main(String[] args) {
 		getParams();
@@ -56,18 +56,18 @@ public class hull {
 			return;
 		}
 		switch (alg) {
-			case JARVIS: jarvisMarch.makeHull(); break;
-			case GRAHAM: grahamScan.makeHull(); break;
+			case JARVIS: jarvis.march(); break;
+			case GRAHAM: graham.scan(); break;
 		}
 	}
 	
 	static void unsolve() {
 		solved = false;
-		solution.clear();
-		grahamScan.start = null;
-		grahamScan.P = null;
-		grahamScan.Q = null;
-		grahamScan.R = null;
+		hull.clear();
+		graham.start = null;
+		graham.P = null;
+		graham.Q = null;
+		graham.R = null;
 	}
 	
 	// helpers //
@@ -110,14 +110,14 @@ public class hull {
 	 * Returns singleton of this class.
 	 * @return
 	 */
-	public static hull getInstance() {
+	public static core getInstance() {
 		if (single_instance == null) {
-			single_instance = new hull();
+			single_instance = new core();
 		}
 		return single_instance;
 	}
 	// private constructor
-	private hull() {}
+	private core() {}
 	
 	/**
 	 * gets our gui to repaint if applicable

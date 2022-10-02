@@ -1,0 +1,5 @@
+enum bend { 
+	NONE,
+	CLOCKWISE,
+	COUNTERCLOCKWISE
+}

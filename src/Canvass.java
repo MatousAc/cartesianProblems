@@ -44,7 +44,7 @@ public class Canvass extends JPanel {
 			public void mouseReleased(MouseEvent e) {
 				int x = e.getX(),
 					y = y(e.getY());
-				hull.addPointManually(new Point(x, y));
+				core.addPointManually(new Point(x, y));
 				isDragging = false;
 				repaint();
 			}
@@ -75,32 +75,32 @@ public class Canvass extends JPanel {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_G: 
-					hull.visualPointGeneration(); break;
+					core.visualPointGeneration(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
-				new Thread(() -> hull.solve()).start(); break;
+				new Thread(() -> core.solve()).start(); break;
 				case KeyEvent.VK_C:
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
 					if (helpOn) helpOn = false;
-					else hull.reset(); break;
+					else core.reset(); break;
 				case KeyEvent.VK_DELETE:
 				case KeyEvent.VK_BACK_SPACE:
-					hull.removePointManually(selectedPoint);
+					core.removePointManually(selectedPoint);
 					break;
 				case KeyEvent.VK_PLUS:
-				case KeyEvent.VK_EQUALS: hull.genSize++; break;
-				case KeyEvent.VK_MINUS: hull.genSize--; break;
+				case KeyEvent.VK_EQUALS: core.genSize++; break;
+				case KeyEvent.VK_MINUS: core.genSize--; break;
 				case KeyEvent.VK_I:
 				case KeyEvent.VK_UP:
-					hull.speed = hull.speed.increase(); break;
+					core.speed = core.speed.increase(); break;
 				case KeyEvent.VK_D:
 				case KeyEvent.VK_DOWN:
-					hull.speed = hull.speed.decrease(); break;
+					core.speed = core.speed.decrease(); break;
 				case KeyEvent.VK_T:
-					hull.alg = hull.alg.toggle(); break;
+					core.alg = core.alg.toggle(); break;
 				case KeyEvent.VK_F:
-					hull.dist = hull.dist.toggle(); break;
+					core.dist = core.dist.toggle(); break;
 				default: helpOn = true;
 				}
 				repaint();
@@ -109,7 +109,7 @@ public class Canvass extends JPanel {
 	}
 
 	protected void checkActive(int x, int y) {
-		for (Point p : hull.points) {
+		for (Point p : core.points) {
 			if (near(p, x, y)) {
 				selectedPoint = p;
 				return;
@@ -142,7 +142,7 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawPoints(Graphics2D g2) {
-		for (Point p : hull.points) {
+		for (Point p : core.points) {
 			drawPoint(g2, p);
 		}
 	}
@@ -150,25 +150,25 @@ public class Canvass extends JPanel {
 	private void drawHull(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		Iterator<Point> i = hull.solution.iterator();
+		Iterator<Point> i = core.hull.iterator();
 		Point curPoint = (i.hasNext()) ? i.next() : null;
 		while (i.hasNext()) {
 			drawLine(g2, curPoint, curPoint = i.next());
 		}
-		if (hull.solved) drawLine(g2, curPoint, grahamScan.start);
+		if (core.solved) drawLine(g2, curPoint, graham.start);
 		graphicDefaults(g2);
 	}
 
 	protected void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
-		if (p == grahamScan.start) {
+		if (p == graham.start) {
 			g.setColor(colours.get("darkBlue"));
 			size *= 1.5;
-		} else if (p == grahamScan.P || p == grahamScan.Q || p == grahamScan.R) {
+		} else if (p == graham.P || p == graham.Q || p == graham.R) {
 			g.setColor(colours.get("gold"));
 			size *= 1.1;
-		} else if (hull.solution.contains(p)) {
+		} else if (core.hull.contains(p)) {
 			g.setColor(colours.get("lightGreen"));
 		}
 		// draw point
@@ -192,7 +192,7 @@ public class Canvass extends JPanel {
 	}
 
 	protected void drawLine(Graphics2D g2, Point p1, Point p2) {
-		if (p1 == grahamScan.P || p1 == grahamScan.Q) {
+		if (p1 == graham.P || p1 == graham.Q) {
 			g2.setColor(colours.get("red"));
 		}
 		g2.drawLine(
@@ -230,13 +230,13 @@ public class Canvass extends JPanel {
 		ArrayList<String> vals = new ArrayList<>();
 		labels.add("Information"); 		vals.add("Value");
 		labels.add("==========="); 		vals.add("==========");
-		labels.add("mode"); 						vals.add(hull.mode.toString());
-		labels.add("algorithm"); 			vals.add(hull.alg.toString());
-		labels.add("speed"); 					vals.add(hull.speed.toString());
-		labels.add("point layout");		vals.add(hull.dist.toString());
-		labels.add("problem size");		vals.add(((Integer) hull.points.size()).toString());
-		labels.add("solution size");		vals.add(((Integer) hull.solution.size()).toString());
-		labels.add("generation size");	vals.add(((Integer) hull.genSize).toString());
+		labels.add("mode"); 						vals.add(core.mode.toString());
+		labels.add("algorithm"); 			vals.add(core.alg.toString());
+		labels.add("speed"); 					vals.add(core.speed.toString());
+		labels.add("point layout");		vals.add(core.dist.toString());
+		labels.add("problem size");		vals.add(((Integer) core.points.size()).toString());
+		labels.add("solution size");		vals.add(((Integer) core.hull.size()).toString());
+		labels.add("generation size");	vals.add(((Integer) core.genSize).toString());
 
 		for (int i = 0; i < labels.size(); i++) {
 			g2.drawString(labels.get(i), 20, -160 + i * LINE_HEIGHT);

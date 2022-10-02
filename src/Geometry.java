@@ -32,7 +32,6 @@ public class Geometry {
 		return abs( a - b ) < .00001;
 	}
 
-
 	/**
 	 * Computes the distance between two {@code Point} objects.
 	 * @param p1 one of the points
@@ -155,5 +154,23 @@ public class Geometry {
 		return new Point( x , y );
 	}
 
+	static bend orientation(Point p, Point q, Point r) {
+		double val = (q.y - p.y) * (r.x - q.x) -
+							(q.x - p.x) * (r.y - q.y);
+		if (val == 0) return bend.NONE;  // collinear
+		return (val > 0)? bend.CLOCKWISE: bend.COUNTERCLOCKWISE; // clock or counterclock wise
+	}
+
+	/**
+	 * calculates the angle between the horizontal and the line drawn from 'a' to 'b'
+	 * @param p1
+	 * @param p2
+	 * @return angle as float
+	 */ // taken from Andre Violentyev's code (see graham.java)
+	public static float angle(Point p1, Point p2) {
+		float angle = (float) Math.toDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
+		if (angle < 0) angle += 360;
+		return angle;
+	}
 }
 
