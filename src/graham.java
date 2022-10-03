@@ -38,7 +38,8 @@ public class Graham extends Algorithm{
 	 * compares using values of slope between each point and
 	 * the start point. with colinear points, the one closer
 	 * to the starting point is "less". starting point is less
-	 * than any other point
+	 * than any other point. visualizes the sort if Core is in
+	 * visual mode
 	 * @param p1 point on left of comparison
 	 * @param p2 point on right of comparison
 	 * @return -1 if p1 < p2, 1 otherwise

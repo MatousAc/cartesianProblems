@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Core {
 	// high level resources
-	private static Core single_instance = null;
+	// private static Core single_instance = null;
 	protected static Canvass canvass;
 	static modes mode;
 	static problems problem = problems.CONVEX_HULL;
@@ -60,6 +60,9 @@ public class Core {
 		}
 	}
 	
+	/**
+	 * resets problem solving progress
+	 */
 	static void unsolve() {
 		solved = false;
 		hull.clear();
@@ -72,13 +75,16 @@ public class Core {
 	// helpers //
 	/**
 	 * Adds a point when user interacts with UI.
+	 * Unsolves problem.
 	 * @param p
 	 */
 	static void addPointManually(Point p) {
 		points.add(p);
+		unsolve();
 	}
+	
 	/**
-	 * Removes a point from the problem. Decreases size.
+	 * Removes a point from the problem.
 	 * Makes unsolved.
 	 * @param p
 	 */
@@ -96,7 +102,9 @@ public class Core {
 	}
 
 	/**
-	 * Generates points on canvas in a radial patter.
+	 * Generates points on canvas in a radial
+	 * or rectangular pattern - depending on the 
+	 * current Core generation function.
 	 */
 	public static void visualPointGeneration() {
 		unsolve();
@@ -105,18 +113,18 @@ public class Core {
 	}
 	
 	// utility f(x)s //
-	/**
-	 * Returns singleton of this class.
-	 * @return
-	 */
-	public static Core getInstance() {
-		if (single_instance == null) {
-			single_instance = new Core();
-		}
-		return single_instance;
-	}
-	// private constructor
-	private Core() {}
+	// /**
+	//  * Returns singleton of this class.
+	//  * @return
+	//  */
+	// public static Core getInstance() {
+	// 	if (single_instance == null) {
+	// 		single_instance = new Core();
+	// 	}
+	// 	return single_instance;
+	// }
+	// // private constructor
+	// private Core() {}
 	
 	/**
 	 * gets our gui to repaint if applicable
@@ -124,29 +132,7 @@ public class Core {
 	static void show() {
 		if (isAuto()) return;
 		canvass.repaint();
-		wait(delay());
-	}
-
-	private static int delay() {
-		switch (speed) {
-			case UNRESTRAINED: 	return 0;
-			case LIGHTNING:			return 1;
-			case FAST: 					return 25;
-			case MEDIUM: 				return 100;
-			case SLOW: 					return 500;
-			case SLOTH: 				return 1000;
-			case PROMPT:
-				canvass.isPaused = true;
-				while (canvass.isPaused) {
-					wait(10);
-				};
-				default: return 0;
-		}
-	}
-
-	private static void wait(int ms) {
-		try { Thread.sleep(ms); }
-		catch (Exception e) { e.printStackTrace(); }
+		Canvass.wait(Canvass.delay());
 	}
 
 	private static void getParams() {

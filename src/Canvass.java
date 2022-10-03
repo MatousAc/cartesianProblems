@@ -14,7 +14,7 @@ public class Canvass extends JPanel {
 	static Map<String, Color> colours = new HashMap<String, Color>();
 	MouseAdapter mouseAdapter;
 	protected boolean isDragging = false;
-	boolean isPaused = false;
+	static boolean isPaused = false;
 	private boolean helpOn = false;
 	private static Point selectedPoint = null;
 
@@ -124,6 +124,46 @@ public class Canvass extends JPanel {
 		dx = (dx > 0) ? dx : -dx;
 		dy = (dy > 0) ? dy : -dy;
 		return dx < CLOSENESS && dy < CLOSENESS;
+	}
+
+	/**
+	 * thread sleeps for designated number of milliseconds
+	 * @param ms
+	 */
+	protected static void wait(int ms) {
+		if (Core.speed == speeds.PROMPT && isPaused == false) { 
+			prompt();
+		}
+		try { Thread.sleep(ms); }
+		catch (Exception e) { e.printStackTrace(); }
+	}
+
+	/**
+	 * pauses calling thread until isPaused == false
+	 */
+	protected static void prompt() {
+		isPaused = true;
+		while (isPaused) {
+			wait(10);
+		};
+	}
+	
+	/**
+	 * determines the delay that the calling thread should be
+	 * paused for depending on the speed setting in Core
+	 * @return delay time in milliseconds
+	 */
+	protected static int delay() {
+		switch (Core.speed) {
+			case UNRESTRAINED: 	return 0;
+			case LIGHTNING:			return 1;
+			case FAST: 					return 25;
+			case MEDIUM: 				return 100;
+			case SLOW: 					return 500;
+			case SLOTH: 				return 1000;
+			case PROMPT:				return 0;
+			default: return 0;
+		}
 	}
 
 	// painting the UI //	
@@ -283,5 +323,5 @@ public class Canvass extends JPanel {
 	private int y(int y) {
 		return getHeight() - y;
 	}
-	private int height() { return y(0);	}
+	private int height() { return getHeight();	}
 }
