@@ -1,5 +1,5 @@
-public class hullSolver {
-	protected static Point start;
+public class algorithm {
+	static Point start;
 	static Point P = null;
 	static Point Q = null;
 	static Point R = null;
@@ -36,14 +36,14 @@ public class hullSolver {
 		P = back(2); Q = back(1); R = back(0);
 	}
 	protected static Point back(int d) {
-		return core.hull.get(core.hull.size() - d - 1);
+		return core.hull.get(core.hull.size() - (d + 1));
 	}
 	protected static void printCurrentState() {
 		System.out.println("sol: " + core.hull);
 		System.out.println("P: " + P + " Q: " + Q + " R: " + R);
 	}
 	protected static void cleanup() {
-		P = null; Q = null; R = null;
+		P = null; Q = null; R = null; start = null;
 		core.solved = true;
 		core.show();
 	}

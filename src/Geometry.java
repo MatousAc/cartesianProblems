@@ -154,21 +154,39 @@ public class Geometry {
 		return new Point( x , y );
 	}
 
+	/**
+	 * Tells us whether a 3-point sequence is 
+	 * colinear, clockwise, or counterclockwise. 
+	 * @param p
+	 * @param q
+	 * @param r
+	 * @return bend type
+	 */
 	static bend orientation(Point p, Point q, Point r) {
 		double val = (q.y - p.y) * (r.x - q.x) -
 							(q.x - p.x) * (r.y - q.y);
 		if (val == 0) return bend.NONE;  // collinear
-		return (val > 0)? bend.CLOCKWISE: bend.COUNTERCLOCKWISE; // clock or counterclock wise
+		return (val > 0)? bend.CLOCKWISE: bend.COUNTERCLOCKWISE;
 	}
 
 	/**
-	 * calculates the angle between the horizontal and the line drawn from 'a' to 'b'
+	 * calculates the angle between the lines p1-p2 and p2-p3
 	 * @param p1
 	 * @param p2
-	 * @return angle as float
-	 */ // taken from Andre Violentyev's code (see graham.java)
-	public static float angle(Point p1, Point p2) {
-		float angle = (float) Math.toDegrees(Math.atan2(p2.y - p1.y, p2.x - p1.x));
+	 * @param p3
+	 * @return angle in degrees
+	 */
+	public static double angleCCW(Point p1, Point p2, Point p3) {
+		double base = angleFromHorizontal(p1, p2);
+		double ray = angleFromHorizontal(p2, p3);
+		double angle = (180 - base) + ray;
+		if (angle < 0) angle += 360;
+		else if (angle > 360) angle -= 360;
+		return angle;
+	}
+
+	public static double angleFromHorizontal(Point p1, Point p2) {
+		double angle = Math.toDegrees(Math.atan2(p2.y- p1.y, p2.x - p1.x));
 		if (angle < 0) angle += 360;
 		return angle;
 	}

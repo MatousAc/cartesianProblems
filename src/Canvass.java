@@ -28,6 +28,7 @@ public class Canvass extends JPanel {
 		colours.put("red", new Color(253, 21, 27));
 		colours.put("lightGreen", new Color(84, 140, 47));
 		colours.put("darkGreen", new Color(60, 73, 17));
+		colours.put("purple", new Color(161, 22, 146));
 		colours.put("default", new Color(11, 5, 0));
 
 		// events
@@ -78,7 +79,7 @@ public class Canvass extends JPanel {
 					core.visualPointGeneration(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
-				new Thread(() -> core.solve()).start(); break;
+					new Thread(() -> core.solve()).start(); break;
 				case KeyEvent.VK_C:
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
@@ -147,27 +148,17 @@ public class Canvass extends JPanel {
 		}
 	}
 
-	private void drawHull(Graphics2D g2) {
-		g2.setColor(colours.get("darkGreen"));
-		g2.setStroke(new BasicStroke(3));
-		Iterator<Point> i = core.hull.iterator();
-		Point curPoint = (i.hasNext()) ? i.next() : null;
-		while (i.hasNext()) {
-			drawLine(g2, curPoint, curPoint = i.next());
-		}
-		if (core.solved) drawLine(g2, curPoint, graham.start);
-		graphicDefaults(g2);
-	}
-
 	protected void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
-		if (p == graham.start) {
+		if (p == algorithm.start) {
 			g.setColor(colours.get("darkBlue"));
 			size *= 1.5;
-		} else if (p == graham.P || p == graham.Q || p == graham.R) {
+		} else if (p == algorithm.P || p == algorithm.Q || p == algorithm.R) {
 			g.setColor(colours.get("gold"));
 			size *= 1.1;
+		} else if (p == jarvis.next) {
+			g.setColor(colours.get("lightBlue"));
 		} else if (core.hull.contains(p)) {
 			g.setColor(colours.get("lightGreen"));
 		}
@@ -191,9 +182,27 @@ public class Canvass extends JPanel {
 		drawPoint(g, p, false);
 	}
 
+	private void drawHull(Graphics2D g2) {
+		g2.setColor(colours.get("darkGreen"));
+		g2.setStroke(new BasicStroke(3));
+		Iterator<Point> i = core.hull.iterator();
+		Point curPoint = (i.hasNext()) ? i.next() : null;
+		while (i.hasNext()) {
+			drawLine(g2, curPoint, curPoint = i.next());
+		}
+		if (core.solved) drawLine(g2, curPoint, core.hull.get(0));
+		if (core.alg == algs.JARVIS) {
+			if (algorithm.Q != null && jarvis.next != null) drawLine(g2, algorithm.Q, jarvis.next);
+			if (algorithm.Q != null && algorithm.R != null) drawLine(g2, algorithm.Q, jarvis.R);
+		}
+		graphicDefaults(g2);
+	}
+
 	protected void drawLine(Graphics2D g2, Point p1, Point p2) {
-		if (p1 == graham.P || p1 == graham.Q) {
+		if (p1 == algorithm.P || (p1 == algorithm.Q && p2 != jarvis.next)) {
 			g2.setColor(colours.get("red"));
+		} else if (p1 == algorithm.Q && p2 == jarvis.next) {
+			g2.setColor(colours.get("purple"));
 		}
 		g2.drawLine(
 			(int) Math.round(p1.x), 

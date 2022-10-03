@@ -1,49 +1,54 @@
 // code from Andre Violentyev was used to write part of this algorithm
 // https://bitbucket.org/StableSort/play/src/master/src/com/stablesort/convexhull/ConvexHullJarvisMarch.java
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class jarvis extends hullSolver{
+public class jarvis extends algorithm {
+	protected static Point next;
+	
 	public static void march() {
 		// setup
 		ArrayList<Point> points = core.points;
 		ArrayList<Point> hull = core.hull;
 		start = findStartPoint();
-		hull.add(start);
 		
-		P = start;
-		float prevAngle = -1;
-		while (true) {
-			float minAngle = Float.MAX_VALUE;
+		P = new Point(start.x, start.y + 10); 
+		Q = start; next = start;
+		// double prevAngle = -1;
+		while (next != start || hull.size() == 0) {
+			hull.add(next); core.show();
+			double minAngle = Float.MAX_VALUE;
 			double maxDist = 0;
-			Point next = null;
-		
-			// iterate over every point and pick the one that creates the largest angle
-			for (Point q : points) {
-				if (q == P) continue;
-				Q = q; core.show();
+
+			// pick point that creates the largest angle
+			Iterator<Point> iter = points.iterator();
+			while (iter.hasNext()) {
+				core.show();
+				R = iter.next();
+				if (R == Q || R == P) continue;
+				core.show();
 				
-				float angle = Geometry.angle(P, q);
-				double dist = Geometry.distance(P, q);
-				int compareAngles = Float.compare(angle, minAngle);
-				
-				if (compareAngles <= 0 && angle > prevAngle) {
-					if (compareAngles < 0 || dist > maxDist) {
-						/*
-						 * found a better Point. It either has a smaller angle, or if it's collinear, then it's further way
-						 */
-						minAngle = angle;
-						maxDist = dist;
-						next = q;						
+				double angle = Geometry.angleCCW(P, Q, R);
+				if (angle >= 360) continue;
+				double dist = Geometry.distance(Q, R);
+				if ((angle < minAngle || (angle == minAngle && dist > maxDist))) {
+				// if (angle <= minAngle && angle > prevAngle) {
+				// if (angle < minAngle || dist > maxDist) {
+				// if (angle < minAngle) {
+					// found better point
+					minAngle = angle;
+					maxDist = dist;
+					next = R;						
 					}
-				}
+				// }
 			}
 			
-			if (next == start) break; // came back to the starting point, so we are done
-			
-			hull.add(next);
-			
-			prevAngle =  Geometry.angle(P, next);
-			P = next;			
-		}	
+			// prevAngle =  Geometry.angleCCW(P, Q, next);
+			P = Q; Q = next;
+			if (next == start) break;
+		}
+		next = null;
+		cleanup();
+		core.show();
 	}
 }

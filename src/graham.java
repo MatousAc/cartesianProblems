@@ -3,7 +3,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
  
-public class graham extends hullSolver{
+public class graham extends algorithm{
 	public static void scan() {
 		ArrayList<Point> points = core.points, hull = core.hull;
 		start = findStartPoint();
@@ -23,10 +23,10 @@ public class graham extends hullSolver{
 		// at the last point, we can still backtrack indefinitely
 		newPQR(); core.show();
 		while (!bendsCCW(P, Q, R)) {
-			newPQR(); core.show();
 			hull.remove(Q);
+			newPQR(); core.show(); // (don't move this line. it's correct)
 		}
-		cleanup();
+		cleanup(); core.show();
 	}
 
 	/**
@@ -52,14 +52,4 @@ public class graham extends hullSolver{
 			// PAINT SLOPES WHILE SORTING
 			else return 1;
 		};
-
-	/**
-	 * Tells us whether a 3-point sequence is 
-	 * colinear, clockwise, or counterclockwise. 
-	 * @param p
-	 * @param q
-	 * @param r
-	 * @return bend type
-	 */
-
 }
