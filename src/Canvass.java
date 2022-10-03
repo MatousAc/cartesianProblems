@@ -132,7 +132,7 @@ public class Canvass extends JPanel {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		graphicDefaults(g2);
-		g2.translate(0, y());
+		g2.translate(0, height());
 		g2.scale(1, -1); // Invert y-axis
 		drawHull(g2);
 		drawSpecialConnections(g2);
@@ -195,7 +195,7 @@ public class Canvass extends JPanel {
 		graphicDefaults(g2);
 	}
 
-	private static void drawSpecialConnections(Graphics2D g2) {
+	private void drawSpecialConnections(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		if (Core.solved && Core.problem == problems.CONVEX_HULL) {
@@ -206,7 +206,11 @@ public class Canvass extends JPanel {
 			if (Algorithm.Q != null && Algorithm.R != null) drawLine(g2, Algorithm.Q, Jarvis.R);
 		}
 
-		
+		if (Graham.m1 != null && Graham.m2 != null) {
+			g2.setColor(colours.get("lightBlue"));
+			drawLine(g2, Graham.m1);
+			drawLine(g2, Graham.m2);
+		}
 		
 		graphicDefaults(g2);
 	}
@@ -226,33 +230,8 @@ public class Canvass extends JPanel {
 		g2.setColor(colours.get("darkGreen"));
 	}
 	
-	protected void drawExtendedLine(Graphics2D g2, Point p1, Point p2) {
-		double m = Geometry.slope(p1, p2), b = Geometry.intercept(p1, p2), 
-			   new_x1, new_y1, new_x2, new_y2;
-		if (m == Double.POSITIVE_INFINITY) {
-			new_x1 = new_x2 = p1.x;
-			new_y1 = -getHeight() / 2;
-			new_y2 = getHeight() / 2;
-		} else if (m >= -1.0 && m <= 1.0) {
-			Point i1 = Geometry.intersection(new Line(m, b), new Line(Double.POSITIVE_INFINITY, -getWidth() / 2)),
-				  i2 = Geometry.intersection(new Line(m, b), new Line(Double.POSITIVE_INFINITY, getWidth() / 2));
-			new_x1 = i1.x;
-			new_y1 = i1.y;
-			new_x2 = i2.x;
-			new_y2 = i2.y;
-		} else {
-			Point i1 = Geometry.intersection(new Line(m, b), new Line(0, -getHeight() / 2)),
-				  i2 = Geometry.intersection(new Line(m, b), new Line(0, getHeight() / 2));
-			new_x1 = i1.x;
-			new_y1 = i1.y;
-			new_x2 = i2.x;
-			new_y2 = i2.y;
-		}
-		var strokeSaved = g2.getStroke();
-		g2.setStroke(new BasicStroke(2));
-		g2.drawLine((int) Math.round(new_x1), (int) Math.round(new_y1), 
-			(int) Math.round(new_x2), (int) Math.round(new_y2));
-		g2.setStroke(strokeSaved);
+	private void drawLine(Graphics2D g2, Line l) {
+		drawLine(g2, l.p1, l.p2);
 	}
 
 	private void drawHelp(Graphics2D g2) {
@@ -304,5 +283,5 @@ public class Canvass extends JPanel {
 	private int y(int y) {
 		return getHeight() - y;
 	}
-	private int y() { return y(0);	}
+	private int height() { return y(0);	}
 }
