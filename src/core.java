@@ -10,10 +10,9 @@ public class core {
 	private static core single_instance = null;
 	protected static Canvass canvass;
 	static modes mode;
-	// static speeds speed = speeds.UNRESTRAINED;
-	static speeds speed = speeds.SLOW;
-	// static algs alg = algs.JARVIS;
-	static algs alg = algs.GRAHAM;
+	static problems problem = problems.CONVEX_HULL;
+	static speeds speed = speeds.UNRESTRAINED;
+	static algs alg = algs.JARVIS;
 	static distributions dist = distributions.RADIAL;
 	static int genSize = 0;
 	static boolean solved = false;

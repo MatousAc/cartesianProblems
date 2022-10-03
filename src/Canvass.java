@@ -16,7 +16,7 @@ public class Canvass extends JPanel {
 	protected boolean isDragging = false;
 	boolean isPaused = false;
 	private boolean helpOn = false;
-	private Point selectedPoint = null;
+	private static Point selectedPoint = null;
 
 	public Canvass() {
 		// design
@@ -135,6 +135,7 @@ public class Canvass extends JPanel {
 		g2.translate(0, y());
 		g2.scale(1, -1); // Invert y-axis
 		drawHull(g2);
+		drawSpecialConnections(g2);
 		drawPoints(g2);
 		
 		g2.scale(1, -1);
@@ -142,13 +143,13 @@ public class Canvass extends JPanel {
 		if (helpOn) drawHelp(g2);
 	}
 
-	private void drawPoints(Graphics2D g2) {
+	private static void drawPoints(Graphics2D g2) {
 		for (Point p : core.points) {
 			drawPoint(g2, p);
 		}
 	}
 
-	protected void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
+	private static void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
 		if (p == algorithm.start) {
@@ -156,8 +157,9 @@ public class Canvass extends JPanel {
 			size *= 1.5;
 		} else if (p == algorithm.P || p == algorithm.Q || p == algorithm.R) {
 			g.setColor(colours.get("gold"));
-			size *= 1.1;
+			size *= 1.08;
 		} else if (p == jarvis.next) {
+			size *= 1.5;
 			g.setColor(colours.get("lightBlue"));
 		} else if (core.hull.contains(p)) {
 			g.setColor(colours.get("lightGreen"));
@@ -178,11 +180,11 @@ public class Canvass extends JPanel {
 		graphicDefaults(g);
 	}
 
-	protected void drawPoint(Graphics2D g, Point p) {
+	private static void drawPoint(Graphics2D g, Point p) {
 		drawPoint(g, p, false);
 	}
 
-	private void drawHull(Graphics2D g2) {
+	private static void drawHull(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		Iterator<Point> i = core.hull.iterator();
@@ -190,15 +192,10 @@ public class Canvass extends JPanel {
 		while (i.hasNext()) {
 			drawLine(g2, curPoint, curPoint = i.next());
 		}
-		if (core.solved) drawLine(g2, curPoint, core.hull.get(0));
-		if (core.alg == algs.JARVIS) {
-			if (algorithm.Q != null && jarvis.next != null) drawLine(g2, algorithm.Q, jarvis.next);
-			if (algorithm.Q != null && algorithm.R != null) drawLine(g2, algorithm.Q, jarvis.R);
-		}
 		graphicDefaults(g2);
 	}
 
-	protected void drawLine(Graphics2D g2, Point p1, Point p2) {
+	private static void drawLine(Graphics2D g2, Point p1, Point p2) {
 		if (p1 == algorithm.P || (p1 == algorithm.Q && p2 != jarvis.next)) {
 			g2.setColor(colours.get("red"));
 		} else if (p1 == algorithm.Q && p2 == jarvis.next) {
@@ -211,6 +208,19 @@ public class Canvass extends JPanel {
 			(int) Math.round(p2.y)
 		);
 		g2.setColor(colours.get("darkGreen"));
+	}
+
+	private static void drawSpecialConnections(Graphics2D g2) {
+		g2.setColor(colours.get("darkGreen"));
+		g2.setStroke(new BasicStroke(3));
+		if (core.solved && core.problem == problems.CONVEX_HULL) {
+			drawLine(g2, algorithm.back(0), core.hull.get(0));
+		}
+		if (core.alg == algs.JARVIS) {
+			if (algorithm.Q != null && jarvis.next != null) drawLine(g2, algorithm.Q, jarvis.next);
+			if (algorithm.Q != null && algorithm.R != null) drawLine(g2, algorithm.Q, jarvis.R);
+		}
+		graphicDefaults(g2);
 	}
 
 	private void drawHelp(Graphics2D g2) {

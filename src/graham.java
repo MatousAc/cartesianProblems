@@ -5,8 +5,9 @@ import java.util.Iterator;
  
 public class graham extends algorithm{
 	public static void scan() {
-		ArrayList<Point> points = core.points, hull = core.hull;
-		start = findStartPoint();
+		ArrayList<Point> points = (ArrayList<Point>) core.points.clone(), 
+			hull = core.hull;
+		start = findStartPoint(points);
 		core.show();
 
 		Collections.sort(points, slopeCompare); // use custom comparer

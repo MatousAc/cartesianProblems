@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class algorithm {
 	static Point start;
 	static Point P = null;
@@ -9,9 +11,9 @@ public class algorithm {
 	 * as this point is definitely on the hull.
 	 * @return starting point for the hull
 	 */
-	protected static Point findStartPoint() {
-		Point leftBottom = core.points.get(0);
-		for (Point p : core.points) {
+	protected static Point findStartPoint(ArrayList<Point> points) {
+		Point leftBottom = points.get(0);
+		for (Point p : points) {
 			if (p.x < leftBottom.x) {
 				leftBottom = p;
 			} else if (p.x == leftBottom.x && p.y < leftBottom.y) { 
@@ -38,14 +40,23 @@ public class algorithm {
 	protected static Point back(int d) {
 		return core.hull.get(core.hull.size() - (d + 1));
 	}
-	protected static void printCurrentState() {
-		System.out.println("sol: " + core.hull);
-		System.out.println("P: " + P + " Q: " + Q + " R: " + R);
-	}
 	protected static void cleanup() {
 		P = null; Q = null; R = null; start = null;
 		core.solved = true;
 		core.show();
+	}
+
+	public static ArrayList<Point> deepClone(ArrayList<Point> points) {
+    ArrayList<Point> clone = new ArrayList<Point>(points.size());
+    for (Point p : points) {
+        clone.add(new Point(p));
+    }
+    return clone;
+}
+
+	protected static void printCurrentState() {
+		System.out.println("sol: " + core.hull);
+		System.out.println("P: " + P + " Q: " + Q + " R: " + R);
 	}
 	protected static void solPop() {
 		core.hull.remove(core.hull.size() - 1);
