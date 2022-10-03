@@ -3,31 +3,31 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
  
-public class graham extends algorithm{
+public class Graham extends Algorithm{
 	public static void scan() {
-		ArrayList<Point> points = (ArrayList<Point>) core.points.clone(), 
-			hull = core.hull;
+		ArrayList<Point> points = (ArrayList<Point>) Core.points.clone(), 
+			hull = Core.hull;
 		start = findStartPoint(points);
-		core.show();
+		Core.show();
 
 		Collections.sort(points, slopeCompare); // use custom comparer
 		// construct solution
 		Iterator<Point> iter = points.iterator();
 		hull.add(iter.next()); hull.add(iter.next()); hull.add(iter.next());
 		while (iter.hasNext()) {
-			newPQR(); core.show();
+			newPQR(); Core.show();
 			if (bendsCCW(P, Q, R)) {
 				hull.add(iter.next());
 			} else { hull.remove(Q); }
 		}
 
 		// at the last point, we can still backtrack indefinitely
-		newPQR(); core.show();
+		newPQR(); Core.show();
 		while (!bendsCCW(P, Q, R)) {
 			hull.remove(Q);
-			newPQR(); core.show(); // (don't move this line. it's correct)
+			newPQR(); Core.show(); // (don't move this line. it's correct)
 		}
-		cleanup(); core.show();
+		cleanup(); Core.show();
 	}
 
 	/**
@@ -43,6 +43,10 @@ public class graham extends algorithm{
 			// make sure starting point always goes to front
 			if (start == p1) return -1;
 			else if (start == p2) return 1;
+
+			// visualize
+
+			
 			// order by slope w/ start point
 			double dif = (Geometry.slope(start, p1) - Geometry.slope(start, p2));
 			if (dif < 0) return -1;
@@ -50,7 +54,6 @@ public class graham extends algorithm{
 			// here, dif = 0, so these are colinear points. we put the nearest one first
 			double d1 = Geometry.distance(start, p1), d2 = Geometry.distance(start, p2);
 			if (d1 < d2) return -1;
-			// PAINT SLOPES WHILE SORTING
 			else return 1;
 		};
 }

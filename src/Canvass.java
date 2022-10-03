@@ -45,7 +45,7 @@ public class Canvass extends JPanel {
 			public void mouseReleased(MouseEvent e) {
 				int x = e.getX(),
 					y = y(e.getY());
-				core.addPointManually(new Point(x, y));
+				Core.addPointManually(new Point(x, y));
 				isDragging = false;
 				repaint();
 			}
@@ -76,32 +76,32 @@ public class Canvass extends JPanel {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_G: 
-					core.visualPointGeneration(); break;
+					Core.visualPointGeneration(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
-					new Thread(() -> core.solve()).start(); break;
+					new Thread(() -> Core.solve()).start(); break;
 				case KeyEvent.VK_C:
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
 					if (helpOn) helpOn = false;
-					else core.reset(); break;
+					else Core.reset(); break;
 				case KeyEvent.VK_DELETE:
 				case KeyEvent.VK_BACK_SPACE:
-					core.removePointManually(selectedPoint);
+					Core.removePointManually(selectedPoint);
 					break;
 				case KeyEvent.VK_PLUS:
-				case KeyEvent.VK_EQUALS: core.genSize++; break;
-				case KeyEvent.VK_MINUS: core.genSize--; break;
+				case KeyEvent.VK_EQUALS: Core.genSize++; break;
+				case KeyEvent.VK_MINUS: Core.genSize--; break;
 				case KeyEvent.VK_I:
 				case KeyEvent.VK_UP:
-					core.speed = core.speed.increase(); break;
+					Core.speed = Core.speed.increase(); break;
 				case KeyEvent.VK_D:
 				case KeyEvent.VK_DOWN:
-					core.speed = core.speed.decrease(); break;
+					Core.speed = Core.speed.decrease(); break;
 				case KeyEvent.VK_T:
-					core.alg = core.alg.toggle(); break;
+					Core.alg = Core.alg.toggle(); break;
 				case KeyEvent.VK_F:
-					core.dist = core.dist.toggle(); break;
+					Core.dist = Core.dist.toggle(); break;
 				default: helpOn = true;
 				}
 				repaint();
@@ -110,7 +110,7 @@ public class Canvass extends JPanel {
 	}
 
 	protected void checkActive(int x, int y) {
-		for (Point p : core.points) {
+		for (Point p : Core.points) {
 			if (near(p, x, y)) {
 				selectedPoint = p;
 				return;
@@ -144,7 +144,7 @@ public class Canvass extends JPanel {
 	}
 
 	private static void drawPoints(Graphics2D g2) {
-		for (Point p : core.points) {
+		for (Point p : Core.points) {
 			drawPoint(g2, p);
 		}
 	}
@@ -152,16 +152,16 @@ public class Canvass extends JPanel {
 	private static void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
-		if (p == algorithm.start) {
+		if (p == Algorithm.start) {
 			g.setColor(colours.get("darkBlue"));
 			size *= 1.5;
-		} else if (p == algorithm.P || p == algorithm.Q || p == algorithm.R) {
+		} else if (p == Algorithm.P || p == Algorithm.Q || p == Algorithm.R) {
 			g.setColor(colours.get("gold"));
 			size *= 1.08;
-		} else if (p == jarvis.next) {
+		} else if (p == Jarvis.next) {
 			size *= 1.5;
 			g.setColor(colours.get("lightBlue"));
-		} else if (core.hull.contains(p)) {
+		} else if (Core.hull.contains(p)) {
 			g.setColor(colours.get("lightGreen"));
 		}
 		// draw point
@@ -187,7 +187,7 @@ public class Canvass extends JPanel {
 	private static void drawHull(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		Iterator<Point> i = core.hull.iterator();
+		Iterator<Point> i = Core.hull.iterator();
 		Point curPoint = (i.hasNext()) ? i.next() : null;
 		while (i.hasNext()) {
 			drawLine(g2, curPoint, curPoint = i.next());
@@ -195,10 +195,26 @@ public class Canvass extends JPanel {
 		graphicDefaults(g2);
 	}
 
+	private static void drawSpecialConnections(Graphics2D g2) {
+		g2.setColor(colours.get("darkGreen"));
+		g2.setStroke(new BasicStroke(3));
+		if (Core.solved && Core.problem == problems.CONVEX_HULL) {
+			drawLine(g2, Algorithm.back(0), Core.hull.get(0));
+		}
+		if (Core.alg == algs.JARVIS) {
+			if (Algorithm.Q != null && Jarvis.next != null) drawLine(g2, Algorithm.Q, Jarvis.next);
+			if (Algorithm.Q != null && Algorithm.R != null) drawLine(g2, Algorithm.Q, Jarvis.R);
+		}
+
+		
+		
+		graphicDefaults(g2);
+	}
+
 	private static void drawLine(Graphics2D g2, Point p1, Point p2) {
-		if (p1 == algorithm.P || (p1 == algorithm.Q && p2 != jarvis.next)) {
+		if (p1 == Algorithm.P || (p1 == Algorithm.Q && p2 != Jarvis.next)) {
 			g2.setColor(colours.get("red"));
-		} else if (p1 == algorithm.Q && p2 == jarvis.next) {
+		} else if (p1 == Algorithm.Q && p2 == Jarvis.next) {
 			g2.setColor(colours.get("purple"));
 		}
 		g2.drawLine(
@@ -209,18 +225,34 @@ public class Canvass extends JPanel {
 		);
 		g2.setColor(colours.get("darkGreen"));
 	}
-
-	private static void drawSpecialConnections(Graphics2D g2) {
-		g2.setColor(colours.get("darkGreen"));
-		g2.setStroke(new BasicStroke(3));
-		if (core.solved && core.problem == problems.CONVEX_HULL) {
-			drawLine(g2, algorithm.back(0), core.hull.get(0));
+	
+	protected void drawExtendedLine(Graphics2D g2, Point p1, Point p2) {
+		double m = Geometry.slope(p1, p2), b = Geometry.intercept(p1, p2), 
+			   new_x1, new_y1, new_x2, new_y2;
+		if (m == Double.POSITIVE_INFINITY) {
+			new_x1 = new_x2 = p1.x;
+			new_y1 = -getHeight() / 2;
+			new_y2 = getHeight() / 2;
+		} else if (m >= -1.0 && m <= 1.0) {
+			Point i1 = Geometry.intersection(new Line(m, b), new Line(Double.POSITIVE_INFINITY, -getWidth() / 2)),
+				  i2 = Geometry.intersection(new Line(m, b), new Line(Double.POSITIVE_INFINITY, getWidth() / 2));
+			new_x1 = i1.x;
+			new_y1 = i1.y;
+			new_x2 = i2.x;
+			new_y2 = i2.y;
+		} else {
+			Point i1 = Geometry.intersection(new Line(m, b), new Line(0, -getHeight() / 2)),
+				  i2 = Geometry.intersection(new Line(m, b), new Line(0, getHeight() / 2));
+			new_x1 = i1.x;
+			new_y1 = i1.y;
+			new_x2 = i2.x;
+			new_y2 = i2.y;
 		}
-		if (core.alg == algs.JARVIS) {
-			if (algorithm.Q != null && jarvis.next != null) drawLine(g2, algorithm.Q, jarvis.next);
-			if (algorithm.Q != null && algorithm.R != null) drawLine(g2, algorithm.Q, jarvis.R);
-		}
-		graphicDefaults(g2);
+		var strokeSaved = g2.getStroke();
+		g2.setStroke(new BasicStroke(2));
+		g2.drawLine((int) Math.round(new_x1), (int) Math.round(new_y1), 
+			(int) Math.round(new_x2), (int) Math.round(new_y2));
+		g2.setStroke(strokeSaved);
 	}
 
 	private void drawHelp(Graphics2D g2) {
@@ -249,13 +281,13 @@ public class Canvass extends JPanel {
 		ArrayList<String> vals = new ArrayList<>();
 		labels.add("Information"); 		vals.add("Value");
 		labels.add("==========="); 		vals.add("==========");
-		labels.add("mode"); 						vals.add(core.mode.toString());
-		labels.add("algorithm"); 			vals.add(core.alg.toString());
-		labels.add("speed"); 					vals.add(core.speed.toString());
-		labels.add("point layout");		vals.add(core.dist.toString());
-		labels.add("problem size");		vals.add(((Integer) core.points.size()).toString());
-		labels.add("solution size");		vals.add(((Integer) core.hull.size()).toString());
-		labels.add("generation size");	vals.add(((Integer) core.genSize).toString());
+		labels.add("mode"); 						vals.add(Core.mode.toString());
+		labels.add("algorithm"); 			vals.add(Core.alg.toString());
+		labels.add("speed"); 					vals.add(Core.speed.toString());
+		labels.add("point layout");		vals.add(Core.dist.toString());
+		labels.add("problem size");		vals.add(((Integer) Core.points.size()).toString());
+		labels.add("solution size");		vals.add(((Integer) Core.hull.size()).toString());
+		labels.add("generation size");	vals.add(((Integer) Core.genSize).toString());
 
 		for (int i = 0; i < labels.size(); i++) {
 			g2.drawString(labels.get(i), 20, -160 + i * LINE_HEIGHT);

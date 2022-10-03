@@ -3,19 +3,19 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class jarvis extends algorithm {
+public class Jarvis extends Algorithm {
 	protected static Point next;
 	
 	public static void march() {
 		// setup
-		ArrayList<Point> points = (ArrayList<Point>) core.points.clone(), 
-			hull = core.hull;
+		ArrayList<Point> points = (ArrayList<Point>) Core.points.clone(), 
+			hull = Core.hull;
 		start = findStartPoint(points);
 		
 		P = new Point(start.x, start.y + 10); 
 		Q = start; next = start;
 		while (next != start || hull.size() == 0) {
-			hull.add(next); core.show();
+			hull.add(next); Core.show();
 			double minAngle = Float.MAX_VALUE;
 			double maxDist = 0;
 
@@ -24,7 +24,7 @@ public class jarvis extends algorithm {
 			while (iter.hasNext()) {
 				R = iter.next();
 				if (R == Q || R == P) continue;
-				core.show();
+				Core.show();
 				
 				double angle = Geometry.angleCCW(P, Q, R);
 				if (angle >= 360) continue;

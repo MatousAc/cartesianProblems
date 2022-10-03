@@ -5,9 +5,9 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class core {
+public class Core {
 	// high level resources
-	private static core single_instance = null;
+	private static Core single_instance = null;
 	protected static Canvass canvass;
 	static modes mode;
 	static problems problem = problems.CONVEX_HULL;
@@ -55,18 +55,18 @@ public class core {
 			return;
 		}
 		switch (alg) {
-			case JARVIS: jarvis.march(); break;
-			case GRAHAM: graham.scan(); break;
+			case JARVIS: Jarvis.march(); break;
+			case GRAHAM: Graham.scan(); break;
 		}
 	}
 	
 	static void unsolve() {
 		solved = false;
 		hull.clear();
-		graham.start = null;
-		graham.P = null;
-		graham.Q = null;
-		graham.R = null;
+		Graham.start = null;
+		Graham.P = null;
+		Graham.Q = null;
+		Graham.R = null;
 	}
 	
 	// helpers //
@@ -109,14 +109,14 @@ public class core {
 	 * Returns singleton of this class.
 	 * @return
 	 */
-	public static core getInstance() {
+	public static Core getInstance() {
 		if (single_instance == null) {
-			single_instance = new core();
+			single_instance = new Core();
 		}
 		return single_instance;
 	}
 	// private constructor
-	private core() {}
+	private Core() {}
 	
 	/**
 	 * gets our gui to repaint if applicable

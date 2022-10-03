@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class algorithm {
+public class Algorithm {
 	static Point start;
 	static Point P = null;
 	static Point Q = null;
@@ -38,12 +38,12 @@ public class algorithm {
 		P = back(2); Q = back(1); R = back(0);
 	}
 	protected static Point back(int d) {
-		return core.hull.get(core.hull.size() - (d + 1));
+		return Core.hull.get(Core.hull.size() - (d + 1));
 	}
 	protected static void cleanup() {
 		P = null; Q = null; R = null; start = null;
-		core.solved = true;
-		core.show();
+		Core.solved = true;
+		Core.show();
 	}
 
 	public static ArrayList<Point> deepClone(ArrayList<Point> points) {
@@ -55,10 +55,10 @@ public class algorithm {
 }
 
 	protected static void printCurrentState() {
-		System.out.println("sol: " + core.hull);
+		System.out.println("sol: " + Core.hull);
 		System.out.println("P: " + P + " Q: " + Q + " R: " + R);
 	}
 	protected static void solPop() {
-		core.hull.remove(core.hull.size() - 1);
+		Core.hull.remove(Core.hull.size() - 1);
 	}
 }
