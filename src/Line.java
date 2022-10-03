@@ -17,6 +17,15 @@ public class Line {
 	private double b ;
 	
 	/**
+	 * the first Point that is on this Line
+	 */
+	public Point p1;
+	/**
+	 * the second Point that is on this Line
+	 */
+	public Point p2;
+
+	/**
 	 * Creates a Line object with the given slope and intercept
 	 * @param m the slope of the line
 	 * @param b the intercept of the line
@@ -24,6 +33,8 @@ public class Line {
 	public Line(double m, double b) {
 		this.m = m ;
 		this.b = b ;
+		this.p1 = new Point(0, b);
+		this.p2 = new Point(1, b + m);
 	}
 
 	/**
@@ -34,6 +45,8 @@ public class Line {
 	public Line(Point p1, Point p2) {
 		this.m = slope( p1, p2 ) ;
 		this.b = intercept( p1, p2 ) ;
+		this.p1 = p1;
+		this.p2 = p2;
 	}
 
 	/**
