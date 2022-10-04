@@ -100,7 +100,6 @@ public class Generator {
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
 			Core.points.add(new Point(x, y));
-			// System.out.println("(" + x + ", " + y + ")");
 		}
 	}
 }

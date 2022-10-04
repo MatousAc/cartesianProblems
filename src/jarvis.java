@@ -13,7 +13,6 @@ public class Jarvis extends Algorithm {
 		start = findStartPoint(points);
 		
 		P = new Point(start.x, start.y - 10); 
-		// P = start;
 		Q = start; next = start;
 		while (next != start || hull.size() == 0) {
 			hull.add(next); Core.show();

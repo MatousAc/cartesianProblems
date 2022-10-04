@@ -60,9 +60,9 @@ public class Core {
 			solve();
 			long endTime = System.currentTimeMillis();
 			double duration = (endTime - startTime) / 1000.0;
-			dataWrite(alg + "," + genFx + "," + size + "," + 
-				(((Integer) Core.hull.size()).toString()) + "," + duration + "\n");
-			unsolve();
+			dataWrite(alg + "," + genFx + "," + points.size() + "," + 
+				hull.size() + "," + duration + "\n");
+			reset();
 		}
 	}
 
@@ -87,7 +87,6 @@ public class Core {
 	static void unsolve() {
 		solved = false;
 		hull.clear();
-		hull.trimToSize();
 		Graham.start = null;
 		Graham.P = null;
 		Graham.Q = null;
@@ -100,7 +99,7 @@ public class Core {
 			FileWriter fw = new FileWriter(file, true);
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(data);
-			bw.flush();;
+			bw.flush();
 			bw.close();
 		} catch (IOException e) { e.printStackTrace(); }
 	}
@@ -140,6 +139,9 @@ public class Core {
 	 * gets our gui to repaint if in visual mode
 	 */
 	static void show() {
+		if (Algorithm.containsDuplicates(hull)) {
+			System.out.println("WARNING: Contains Duplicates.");
+		}
 		if (isAuto()) return;
 		canvass.repaint();
 		Canvass.wait(Canvass.delay());
