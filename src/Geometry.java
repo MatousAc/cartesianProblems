@@ -162,11 +162,11 @@ public class Geometry {
 	 * @param r
 	 * @return bend type
 	 */
-	static bend orientation(Point p, Point q, Point r) {
+	static Bend orientation(Point p, Point q, Point r) {
 		double val = (q.y - p.y) * (r.x - q.x) -
 							(q.x - p.x) * (r.y - q.y);
-		if (val == 0) return bend.NONE;  // collinear
-		return (val > 0)? bend.CLOCKWISE: bend.COUNTERCLOCKWISE;
+		if (val == 0) return Bend.NONE;  // collinear
+		return (val > 0)? Bend.CLOCKWISE: Bend.COUNTERCLOCKWISE;
 	}
 
 	/**

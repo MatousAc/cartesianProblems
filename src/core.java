@@ -55,13 +55,13 @@ public class Core {
 	 */
 	public static void test() {
 		for (int size = 4; size < genSize; size *= 2) {
-			Generator.rectangularAuto(size);
+			Generator.generatePoints(size);
 			long startTime = System.currentTimeMillis();
 			solve();
 			long endTime = System.currentTimeMillis();
 			double duration = (endTime - startTime) / 1000.0;
 			dataWrite(alg + "," + genFx + "," + size + "," + 
-				hull.size() + "," + duration + "\n");
+				(((Integer) Core.hull.size()).toString()) + "," + duration + "\n");
 			unsolve();
 		}
 	}
@@ -87,6 +87,7 @@ public class Core {
 	static void unsolve() {
 		solved = false;
 		hull.clear();
+		hull.trimToSize();
 		Graham.start = null;
 		Graham.P = null;
 		Graham.Q = null;

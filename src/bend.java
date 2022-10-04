@@ -1,4 +1,4 @@
-enum bend { 
+enum Bend { 
 	NONE,
 	CLOCKWISE,
 	COUNTERCLOCKWISE

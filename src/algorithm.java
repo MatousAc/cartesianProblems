@@ -33,7 +33,7 @@ public class Algorithm {
 	 * @return true | false
 	 */
 	protected static boolean bendsCCW(Point P, Point Q, Point R) {
-		return Geometry.orientation(P, Q, R) == bend.COUNTERCLOCKWISE;
+		return Geometry.orientation(P, Q, R) == Bend.COUNTERCLOCKWISE;
 	}
 
 	protected static void newPQR() {
