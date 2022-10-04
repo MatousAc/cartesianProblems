@@ -1,4 +1,4 @@
-public enum problems {
+public enum Problem {
 	CONVEX_HULL;
 	@Override
 	public String toString() {

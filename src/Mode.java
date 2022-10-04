@@ -1,6 +1,6 @@
-enum modes { 
+enum Mode { 
 	VISUAL, 
-	AUTOMATIC;
+	AUTO;
 
 	@Override
 	public String toString() {

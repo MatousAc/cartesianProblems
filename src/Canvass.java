@@ -76,7 +76,7 @@ public class Canvass extends JPanel {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_G: 
-					Core.visualPointGeneration(); break;
+					Generator.generatePoints(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
 					new Thread(() -> Core.solve()).start(); break;
@@ -101,7 +101,7 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_T:
 					Core.alg = Core.alg.toggle(); break;
 				case KeyEvent.VK_F:
-					Core.dist = Core.dist.toggle(); break;
+					Core.genFx = Core.genFx.next(); break;
 				default: helpOn = true;
 				}
 				repaint();
@@ -131,7 +131,7 @@ public class Canvass extends JPanel {
 	 * @param ms
 	 */
 	protected static void wait(int ms) {
-		if (Core.speed == speeds.PROMPT && isPaused == false) { 
+		if (Core.speed == Speed.PROMPT && isPaused == false) { 
 			prompt();
 		}
 		try { Thread.sleep(ms); }
@@ -230,7 +230,9 @@ public class Canvass extends JPanel {
 		Iterator<Point> i = Core.hull.iterator();
 		Point curPoint = (i.hasNext()) ? i.next() : null;
 		while (i.hasNext()) {
-			drawLine(g2, curPoint, curPoint = i.next());
+			Point prev = new Point(curPoint);
+			curPoint = i.next();
+			drawLine(g2, prev, curPoint);
 		}
 		graphicDefaults(g2);
 	}
@@ -238,12 +240,13 @@ public class Canvass extends JPanel {
 	private void drawSpecialConnections(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		if (Core.solved && Core.problem == problems.CONVEX_HULL) {
+		if (Core.solved && Core.problem == Problem.CONVEX_HULL) {
 			drawLine(g2, Algorithm.back(0), Core.hull.get(0));
 		}
-		if (Core.alg == algs.JARVIS) {
+		if (Core.alg == Alg.JARVIS) {
 			if (Algorithm.Q != null && Jarvis.next != null) drawLine(g2, Algorithm.Q, Jarvis.next);
 			if (Algorithm.Q != null && Algorithm.R != null) drawLine(g2, Algorithm.Q, Jarvis.R);
+			if (Algorithm.P != null && Algorithm.Q != null) drawLine(g2, Algorithm.P, Jarvis.Q);
 		}
 
 		if (Graham.m1 != null && Graham.m2 != null) {
@@ -287,7 +290,7 @@ public class Canvass extends JPanel {
 		keys.add("up/down");	cmds.add("increase/decrease speed");
 		keys.add("+/-"); 		cmds.add("increase/decrease generation size");
 		keys.add("T"); 			cmds.add("toggle algorithm");
-		keys.add("F"); 			cmds.add("toggle generation style");
+		keys.add("F"); 			cmds.add("toggle generation function");
 
 		for (int i = 0; i < keys.size(); i++) {
 			g2.drawString(keys.get(i), 20, 20 - y(i * LINE_HEIGHT));
@@ -303,7 +306,7 @@ public class Canvass extends JPanel {
 		labels.add("mode"); 						vals.add(Core.mode.toString());
 		labels.add("algorithm"); 			vals.add(Core.alg.toString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
-		labels.add("point layout");		vals.add(Core.dist.toString());
+		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
 		labels.add("problem size");		vals.add(((Integer) Core.points.size()).toString());
 		labels.add("solution size");		vals.add(((Integer) Core.hull.size()).toString());
 		labels.add("generation size");	vals.add(((Integer) Core.genSize).toString());

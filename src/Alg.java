@@ -1,13 +1,13 @@
-public enum algs {
+public enum Alg {
 	JARVIS,
 	GRAHAM {
 			@Override
-			public algs toggle() {
+			public Alg toggle() {
 					return JARVIS;
 			};
 	};
 
-	public algs toggle() {
+	public Alg toggle() {
 		return GRAHAM;
 	}
 

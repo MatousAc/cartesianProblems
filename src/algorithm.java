@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Algorithm {
 	static Point start;
@@ -53,6 +55,11 @@ public class Algorithm {
     }
     return clone;
 }
+
+	public static boolean containsDuplicates(ArrayList<Point> points) {
+		Set<Point> set = new HashSet<Point>(points);
+		return set.size() < points.size();
+	}
 
 	protected static void printCurrentState() {
 		System.out.println("sol: " + Core.hull);

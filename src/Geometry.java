@@ -174,14 +174,14 @@ public class Geometry {
 	 * @param p1
 	 * @param p2
 	 * @param p3
-	 * @return angle in degrees
+	 * @return angle in degrees. interval: [0, 360)
 	 */
 	public static double angleCCW(Point p1, Point p2, Point p3) {
 		double base = angleFromHorizontal(p1, p2);
 		double ray = angleFromHorizontal(p2, p3);
 		double angle = (180 - base) + ray;
 		if (angle < 0) angle += 360;
-		else if (angle > 360) angle -= 360;
+		else if (angle > 360) angle %= 360;
 		return angle;
 	}
 

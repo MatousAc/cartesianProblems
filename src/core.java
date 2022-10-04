@@ -1,19 +1,21 @@
 import java.awt.*;
 import javax.swing.SwingUtilities;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.Scanner;
 
 public class Core {
 	// high level resources
 	// private static Core single_instance = null;
 	protected static Canvass canvass;
-	static modes mode;
-	static problems problem = problems.CONVEX_HULL;
-	static speeds speed = speeds.UNRESTRAINED;
-	static algs alg = algs.JARVIS;
-	static distributions dist = distributions.RADIAL;
+	static Mode mode;
+	static Problem problem = Problem.CONVEX_HULL;
+	static Speed speed = Speed.UNRESTRAINED;
+	static Alg alg = Alg.JARVIS;
+	static GenFx genFx = GenFx.RADIAL;
 	static int genSize = 0;
 	static boolean solved = false;
 	// basic problem resources
@@ -22,31 +24,50 @@ public class Core {
 
 	public static void main(String[] args) {
 		getParams();
-		if (isAuto()) test();
+		if (isAuto()) auto();
 		else makeCanvass();
 	}
 
-	public static void test() {
-		Path path = Paths.get("performance.csv");
-		for (int i = 0; i < genSize;) {}
-		long startTime = System.currentTimeMillis();
-		solve();
-		long endTime = System.currentTimeMillis();
-		double duration = (endTime - startTime) / 1000.0;
-		System.out.print("Duration: " + duration);
-		String res = alg + "," + duration;
+	/**
+	 * conducts an automated run of both algorithms
+	 */
+	public static void auto() {
+		dataWrite("algorithm,generation style,problem size,solution size,duration (s)\n");
+		ArrayList<Alg> algs = new ArrayList<Alg>(EnumSet.allOf(Alg.class));
+		ArrayList<GenFx> styles = new ArrayList<GenFx>(
+			EnumSet.allOf(GenFx.class)
+		);
+		
+		for (Alg a : algs) {
+			alg = a;
+			for (GenFx s : styles) {
+				genFx = s;
+				test();
+			}
+		}
+	}
 
-		try {
-			Files.write(path, res.getBytes());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	/**
+	 * tests Core's current algorithm up to genSize.
+	 * puts together results in res variable.
+	 * @param res
+	 * @return the testing duration results in csv format
+	 */
+	public static void test() {
+		for (int size = 4; size < genSize; size *= 2) {
+			Generator.rectangularAuto(size);
+			long startTime = System.currentTimeMillis();
+			solve();
+			long endTime = System.currentTimeMillis();
+			double duration = (endTime - startTime) / 1000.0;
+			dataWrite(alg + "," + genFx + "," + size + "," + 
+				hull.size() + "," + duration + "\n");
+			unsolve();
 		}
 	}
 
 	/**
 	 * Solves using specified algorithm, visibility, and speed
-	 * @throws IOException
 	 */
 	public static void solve() {
 		unsolve();
@@ -73,6 +94,19 @@ public class Core {
 	}
 	
 	// helpers //
+	private static void dataWrite(String data, String file) {
+		try {
+			FileWriter fw = new FileWriter(file, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(data);
+			bw.flush();;
+			bw.close();
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+	private static void dataWrite(String data) {
+		dataWrite(data, "performance.csv");
+	}
+
 	/**
 	 * Adds a point when user interacts with UI.
 	 * Unsolves problem.
@@ -100,34 +134,9 @@ public class Core {
 		unsolve();
 		points.clear();
 	}
-
-	/**
-	 * Generates points on canvas in a radial
-	 * or rectangular pattern - depending on the 
-	 * current Core generation function.
-	 */
-	public static void visualPointGeneration() {
-		unsolve();
-		if (dist == distributions.RADIAL) generate.radial();
-		else generate.rectangular();
-	}
-	
-	// utility f(x)s //
-	// /**
-	//  * Returns singleton of this class.
-	//  * @return
-	//  */
-	// public static Core getInstance() {
-	// 	if (single_instance == null) {
-	// 		single_instance = new Core();
-	// 	}
-	// 	return single_instance;
-	// }
-	// // private constructor
-	// private Core() {}
 	
 	/**
-	 * gets our gui to repaint if applicable
+	 * gets our gui to repaint if in visual mode
 	 */
 	static void show() {
 		if (isAuto()) return;
@@ -137,11 +146,11 @@ public class Core {
 
 	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
-		System.out.print("Select Mode (visual|automatic): ");
+		System.out.print("Select Mode (visual|auto): ");
 		switch (scan.next().toLowerCase()) {
 			case "v":
-			case "visual": mode = modes.VISUAL; break;
-			default: mode = modes.AUTOMATIC; break;
+			case "visual": mode = Mode.VISUAL; break;
+			default: mode = Mode.AUTO; break;
 		}
 		
 		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size : ";
@@ -160,5 +169,5 @@ public class Core {
 		});
 	}
 
-	private static boolean isAuto() { return mode == modes.AUTOMATIC; }
+	private static boolean isAuto() { return mode == Mode.AUTO; }
 }

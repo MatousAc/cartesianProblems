@@ -12,31 +12,34 @@ public class Jarvis extends Algorithm {
 			hull = Core.hull;
 		start = findStartPoint(points);
 		
-		P = new Point(start.x, start.y + 10); 
+		P = new Point(start.x, start.y - 10); 
+		// P = start;
 		Q = start; next = start;
 		while (next != start || hull.size() == 0) {
 			hull.add(next); Core.show();
-			double minAngle = Float.MAX_VALUE;
+			double maxAngle = Double.MIN_VALUE;
 			double maxDist = 0;
 
 			// pick point that creates the largest angle
 			Iterator<Point> iter = points.iterator();
 			while (iter.hasNext()) {
 				R = iter.next();
-				if (R == Q || R == P) continue;
-				Core.show();
+				if (P == Q || Q == R || R == P) continue;
 				
 				double angle = Geometry.angleCCW(P, Q, R);
-				if (angle >= 360) continue;
+				Core.show();
+				// if angle > 180 the points are too close to distinguish
+				// a point can not be outside this range as the algorithms
+				// ALWAYS keeps the full set of points to the right of Line(Q, R)
+				if (angle > 180) continue;
 				double dist = Geometry.distance(Q, R);
-				if ((angle < minAngle || (angle == minAngle && dist > maxDist))) {
+				if ((angle > maxAngle) || (angle == maxAngle && dist > maxDist)) {
 					// found better point
-					minAngle = angle;
+					maxAngle = angle;
 					maxDist = dist;
 					next = R;						
-					}
+				}
 			}
-			
 			P = Q; Q = next;
 			if (next == start) break;
 		}

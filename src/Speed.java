@@ -1,7 +1,7 @@
-public enum speeds {
+public enum Speed {
 	PROMPT {
 		@Override
-		public speeds decrease() {
+		public Speed decrease() {
 				return PROMPT;
 		};
 	},
@@ -12,15 +12,15 @@ public enum speeds {
 	LIGHTNING,
 	UNRESTRAINED {
 		@Override
-			public speeds increase() {
+			public Speed increase() {
 					return UNRESTRAINED;
 		};
 	};
 
-	public speeds increase() {
+	public Speed increase() {
 			return values()[ordinal() + 1];
 	}
-	public speeds decrease() {
+	public Speed decrease() {
 		return values()[ordinal() - 1];
 	}
 
