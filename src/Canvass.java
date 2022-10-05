@@ -99,7 +99,7 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_DOWN:
 					Core.speed = Core.speed.decrease(); break;
 				case KeyEvent.VK_T:
-					Core.alg = Core.alg.toggle(); break;
+					Core.chAlg = Core.chAlg.toggle(); break;
 				case KeyEvent.VK_F:
 					Core.genFx = Core.genFx.next(); break;
 				default: helpOn = true;
@@ -157,6 +157,7 @@ public class Canvass extends JPanel {
 		switch (Core.speed) {
 			case UNRESTRAINED: 	return 0;
 			case LIGHTNING:			return 1;
+			case SUPER: 				return 5;
 			case FAST: 					return 25;
 			case MEDIUM: 				return 100;
 			case SLOW: 					return 500;
@@ -227,12 +228,10 @@ public class Canvass extends JPanel {
 	private static void drawHull(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		Iterator<Point> i = Core.hull.iterator();
-		Point curPoint = (i.hasNext()) ? i.next() : null;
-		while (i.hasNext()) {
-			Point prev = new Point(curPoint);
-			curPoint = i.next();
-			drawLine(g2, prev, curPoint);
+		Iterator<Point> iter = Core.hull.iterator();
+		Point point = (iter.hasNext()) ? iter.next() : null;
+		while (iter.hasNext()) {
+			drawLine(g2, point, point = iter.next());
 		}
 		graphicDefaults(g2);
 	}
@@ -243,10 +242,10 @@ public class Canvass extends JPanel {
 		if (Core.solved && Core.problem == Problem.CONVEX_HULL) {
 			drawLine(g2, Algorithm.back(0), Core.hull.get(0));
 		}
-		if (Core.alg == Alg.JARVIS) {
+		if (Core.chAlg == ChAlg.JARVIS_MARCH) {
 			if (Algorithm.Q != null && Jarvis.next != null) drawLine(g2, Algorithm.Q, Jarvis.next);
-			if (Algorithm.Q != null && Algorithm.R != null) drawLine(g2, Algorithm.Q, Jarvis.R);
-			if (Algorithm.P != null && Algorithm.Q != null) drawLine(g2, Algorithm.P, Jarvis.Q);
+			if (Algorithm.Q != null && Algorithm.R != null) drawLine(g2, Algorithm.Q, Algorithm.R);
+			if (Algorithm.P != null && Algorithm.Q != null) drawLine(g2, Algorithm.P, Algorithm.Q);
 		}
 
 		if (Graham.m1 != null && Graham.m2 != null) {
@@ -304,7 +303,7 @@ public class Canvass extends JPanel {
 		labels.add("Information"); 		vals.add("Value");
 		labels.add("==========="); 		vals.add("==========");
 		labels.add("mode"); 						vals.add(Core.mode.toString());
-		labels.add("algorithm"); 			vals.add(Core.alg.toString());
+		labels.add("algorithm"); 			vals.add(Core.chAlg.toString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
 		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
 		labels.add("problem size");		vals.add(((Integer) Core.points.size()).toString());

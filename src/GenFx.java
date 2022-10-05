@@ -6,7 +6,7 @@ public enum GenFx {
 			public GenFx next() {
 					return RADIAL;
 		};
-};
+	};
 
 public GenFx next() {
 	return values()[ordinal() + 1];

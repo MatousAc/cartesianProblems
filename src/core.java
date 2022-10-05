@@ -14,7 +14,7 @@ public class Core {
 	static Mode mode;
 	static Problem problem = Problem.CONVEX_HULL;
 	static Speed speed = Speed.UNRESTRAINED;
-	static Alg alg = Alg.JARVIS;
+	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
 	static GenFx genFx = GenFx.RADIAL;
 	static int genSize = 0;
 	static boolean solved = false;
@@ -33,13 +33,13 @@ public class Core {
 	 */
 	public static void auto() {
 		dataWrite("algorithm,generation style,problem size,solution size,duration (s)\n");
-		ArrayList<Alg> algs = new ArrayList<Alg>(EnumSet.allOf(Alg.class));
+		ArrayList<ChAlg> algs = new ArrayList<ChAlg>(EnumSet.allOf(ChAlg.class));
 		ArrayList<GenFx> styles = new ArrayList<GenFx>(
 			EnumSet.allOf(GenFx.class)
 		);
 		
-		for (Alg a : algs) {
-			alg = a;
+		for (ChAlg a : algs) {
+			chAlg = a;
 			for (GenFx s : styles) {
 				genFx = s;
 				test();
@@ -74,9 +74,9 @@ public class Core {
 			System.out.print("convex hull impossible");
 			return;
 		}
-		switch (alg) {
-			case JARVIS: Jarvis.march(); break;
-			case GRAHAM: Graham.scan(); break;
+		switch (chAlg) {
+			case JARVIS_MARCH: Jarvis.march(); break;
+			case GRAHAM_SCAN: Graham.scan(); break;
 		}
 	}
 	
@@ -94,7 +94,7 @@ public class Core {
 	
 	// helpers //
 	private static String dataPieces(double duration) {
-		return alg + "," + genFx + "," + points.size() + "," + 
+		return chAlg + "," + genFx + "," + points.size() + "," + 
 				hull.size() + "," + duration + "\n";
 	}
 	private static void dataWrite(String data, String file) {

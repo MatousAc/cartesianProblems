@@ -3,6 +3,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class Algorithm {
+	static ArrayList<Point> pointCopy;
 	static Point start;
 	static Point P = null;
 	static Point Q = null;

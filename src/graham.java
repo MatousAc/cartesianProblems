@@ -8,27 +8,26 @@ public class Graham extends Algorithm{
 	public static Line m2 = null;
 	
 	public static void scan() {
-		ArrayList<Point> points = (ArrayList<Point>) Core.points.clone(), 
-			hull = Core.hull;
-		start = findStartPoint(points);
+		pointCopy = (ArrayList<Point>) Core.points.clone();
+		start = findStartPoint(pointCopy);
 		Core.show();
 
-		Collections.sort(points, slopeCompare); // use custom comparer
+		Collections.sort(pointCopy, slopeCompare); // use custom comparer
 		m1 = null; m2 = null;
 		// construct solution
-		Iterator<Point> iter = points.iterator();
-		hull.add(iter.next()); hull.add(iter.next()); hull.add(iter.next());
+		Iterator<Point> iter = pointCopy.iterator();
+		Core.hull.add(iter.next()); Core.hull.add(iter.next()); Core.hull.add(iter.next());
 		while (iter.hasNext()) {
 			newPQR(); Core.show();
 			if (bendsCCW(P, Q, R)) {
-				hull.add(iter.next());
-			} else { hull.remove(Q); }
+				Core.hull.add(iter.next());
+			} else { Core.hull.remove(Q); }
 		}
 
 		// at the last point, we can still backtrack indefinitely
 		newPQR(); Core.show();
 		while (!bendsCCW(P, Q, R)) {
-			hull.remove(Q);
+			Core.hull.remove(Q);
 			newPQR(); Core.show(); // (don't move this line. it's correct)
 		}
 		cleanup(); Core.show();

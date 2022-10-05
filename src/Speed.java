@@ -9,6 +9,7 @@ public enum Speed {
 	SLOW,
 	MEDIUM,
 	FAST,
+	SUPER,
 	LIGHTNING,
 	UNRESTRAINED {
 		@Override

@@ -7,20 +7,18 @@ public class Jarvis extends Algorithm {
 	protected static Point next;
 	
 	public static void march() {
-		// setup
-		ArrayList<Point> points = (ArrayList<Point>) Core.points.clone(), 
-			hull = Core.hull;
-		start = findStartPoint(points);
+		pointCopy = (ArrayList<Point>) Core.points.clone();
+		start = findStartPoint(pointCopy);
 		
-		P = new Point(start.x, start.y - 10); 
+		P = new Point(start.x, start.y - 1); 
 		Q = start; next = start;
-		while (next != start || hull.size() == 0) {
-			hull.add(next); Core.show();
+		while (next != start || Core.hull.size() == 0) {
+			Core.hull.add(next); Core.show();
 			double maxAngle = Double.MIN_VALUE;
 			double maxDist = 0;
 
 			// pick point that creates the largest angle
-			Iterator<Point> iter = points.iterator();
+			Iterator<Point> iter = pointCopy.iterator();
 			while (iter.hasNext()) {
 				R = iter.next();
 				if (P == Q || Q == R || R == P) continue;
