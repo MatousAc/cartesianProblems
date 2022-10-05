@@ -49,10 +49,12 @@ public class Graham extends Algorithm{
 			if (start == p1) return -1;
 			else if (start == p2) return 1;
 
-			// visualize slopes
-			m1 = new Line(start, p1);
-			m2 = new Line(start, p2);
-			Core.show();
+			// visualize slopes if visual mode
+			if (Core.mode == Mode.VISUAL) {
+				m1 = new Line(start, p1);
+				m2 = new Line(start, p2);
+				Core.show();
+			}
 			
 			// order by slope w/ start point
 			double dif = (Geometry.slope(start, p1) - Geometry.slope(start, p2));

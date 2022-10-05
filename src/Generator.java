@@ -84,8 +84,8 @@ public class Generator {
 
 	public static void rectangularAuto(int n) {
 		for (int i = 0; i < n; i++) {
-			int x = rand.nextInt();
-			int y = rand.nextInt();
+			int x = rand.nextInt() & Integer.MAX_VALUE; // make positive
+			int y = rand.nextInt() & Integer.MAX_VALUE;
 			Core.points.add(new Point(x, y));
 		}
 	}

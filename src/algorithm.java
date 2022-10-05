@@ -61,8 +61,17 @@ public class Algorithm {
 		return set.size() < points.size();
 	}
 
+	public static boolean containsNegatives(ArrayList<Point> points) {
+		for (Point p : points) {
+			if (p.x < 0 || p.y < 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected static void printCurrentState() {
-		System.out.println("sol: " + Core.hull);
+		System.out.println("hull: " + Core.hull);
 		System.out.println("P: " + P + " Q: " + Q + " R: " + R);
 	}
 	protected static void solPop() {

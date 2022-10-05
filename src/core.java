@@ -60,8 +60,7 @@ public class Core {
 			solve();
 			long endTime = System.currentTimeMillis();
 			double duration = (endTime - startTime) / 1000.0;
-			dataWrite(alg + "," + genFx + "," + points.size() + "," + 
-				hull.size() + "," + duration + "\n");
+			dataWrite(dataPieces(duration));
 			reset();
 		}
 	}
@@ -94,6 +93,10 @@ public class Core {
 	}
 	
 	// helpers //
+	private static String dataPieces(double duration) {
+		return alg + "," + genFx + "," + points.size() + "," + 
+				hull.size() + "," + duration + "\n";
+	}
 	private static void dataWrite(String data, String file) {
 		try {
 			FileWriter fw = new FileWriter(file, true);
@@ -139,9 +142,6 @@ public class Core {
 	 * gets our gui to repaint if in visual mode
 	 */
 	static void show() {
-		if (Algorithm.containsDuplicates(hull)) {
-			System.out.println("WARNING: Contains Duplicates.");
-		}
 		if (isAuto()) return;
 		canvass.repaint();
 		Canvass.wait(Canvass.delay());
