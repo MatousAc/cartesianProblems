@@ -302,7 +302,7 @@ public class Canvass extends JPanel {
 		ArrayList<String> vals = new ArrayList<>();
 		labels.add("Information"); 		vals.add("Value");
 		labels.add("==========="); 		vals.add("==========");
-		labels.add("mode"); 						vals.add(Core.mode.toString());
+		labels.add("problem");					vals.add(Core.problem.toString());
 		labels.add("algorithm"); 			vals.add(Core.chAlg.toString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
 		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
