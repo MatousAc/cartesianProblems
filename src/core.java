@@ -60,7 +60,9 @@ public class Core {
 			solve();
 			long endTime = System.currentTimeMillis();
 			double duration = (endTime - startTime) / 1000.0;
-			dataWrite(dataPieces(duration));
+			String data = dataPieces(duration);
+			dataWrite(data);
+			System.out.println(data);
 			reset();
 		}
 	}
