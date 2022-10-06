@@ -1,7 +1,7 @@
 import javax.swing.*;
 
 /**
- * A convenience superclass for creating simple graphical applications.
+ * A convenience superclass for creating simple graphical apps.
  */
 @SuppressWarnings("serial")
 public class AppWindow extends JFrame {
