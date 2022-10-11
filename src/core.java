@@ -38,11 +38,13 @@ public class Core {
 			EnumSet.allOf(GenFx.class)
 		);
 		
-		for (ChAlg a : algs) {
-			chAlg = a;
+		for (int size = 4; size < genSize; size *= 2) {
 			for (GenFx s : styles) {
 				genFx = s;
-				test();
+				for (ChAlg a : algs) {
+					chAlg = a;
+						test(size);
+				}
 			}
 		}
 	}
@@ -53,18 +55,16 @@ public class Core {
 	 * @param res
 	 * @return the testing duration results in csv format
 	 */
-	public static void test() {
-		for (int size = 4; size < genSize; size *= 2) {
-			Generator.generatePoints(size);
-			long startTime = System.currentTimeMillis();
-			solve();
-			long endTime = System.currentTimeMillis();
-			double duration = (endTime - startTime) / 1000.0;
-			String data = dataPieces(duration);
-			dataWrite(data);
-			System.out.print(data);
-			reset();
-		}
+	public static void test(int size) {
+		Generator.generatePoints(size);
+		long startTime = System.currentTimeMillis();
+		solve();
+		long endTime = System.currentTimeMillis();
+		double duration = (endTime - startTime) / 1000.0;
+		String data = dataPieces(duration);
+		dataWrite(data);
+		System.out.print(data);
+		reset();
 	}
 
 	/**
