@@ -13,12 +13,11 @@ public class Canvass extends JPanel {
 	private static final int LINE_HEIGHT = 18;
 	static Map<String, Color> colours = new HashMap<String, Color>();
 	MouseAdapter mouseAdapter;
-	protected boolean isDragging = false;
-	static boolean isPaused = false;
-	private boolean helpOn = false;
+	private static boolean isDragging, isPaused, helpOn;
 	private static Point selectedPoint = null;
 
 	public Canvass() {
+		reset();
 		// design
 		setBackground(Color.WHITE);
 		setLayout(null);
@@ -41,8 +40,9 @@ public class Canvass extends JPanel {
 				}
 			}
 	
-			@Override // adds a point
+			@Override // adds a point if 
 			public void mouseReleased(MouseEvent e) {
+				if (selectedPoint != null) return; // leave point where it is
 				int x = e.getX(),
 					y = y(e.getY());
 				Core.addPointManually(new Point(x, y));
@@ -52,9 +52,7 @@ public class Canvass extends JPanel {
 	
 			@Override // detect if you run into a point
 			public void mouseMoved(MouseEvent e) {
-				if (!isDragging) {
-					checkActive(e.getX(), y(e.getY()));
-				}
+				checkActive(e.getX(), y(e.getY()));
 				repaint();
 			}
 	
@@ -88,6 +86,7 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_DELETE:
 				case KeyEvent.VK_BACK_SPACE:
 					Core.removePointManually(selectedPoint);
+					selectedPoint = null;
 					break;
 				case KeyEvent.VK_PLUS:
 				case KeyEvent.VK_EQUALS: Core.genSize++; break;
@@ -107,6 +106,13 @@ public class Canvass extends JPanel {
 				repaint();
 			}
 		});
+	}
+
+	public void reset() {
+		isDragging = false;
+		isPaused = false;
+	 	helpOn = false;
+	 	selectedPoint = null;
 	}
 
 	protected void checkActive(int x, int y) {
@@ -193,10 +199,10 @@ public class Canvass extends JPanel {
 	private static void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
-		if (p == Algorithm.start) {
+		if (p == HullAlg.start) {
 			g.setColor(colours.get("darkBlue"));
 			size *= 1.5;
-		} else if (p == Algorithm.P || p == Algorithm.Q || p == Algorithm.R) {
+		} else if (p == HullAlg.P || p == HullAlg.Q || p == HullAlg.R) {
 			g.setColor(colours.get("gold"));
 			size *= 1.08;
 		} else if (p == Jarvis.next) {
@@ -240,12 +246,12 @@ public class Canvass extends JPanel {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		if (Core.solved && Core.problem == Problem.CONVEX_HULL) {
-			drawLine(g2, Algorithm.back(0), Core.hull.get(0));
+			drawLine(g2, HullAlg.back(0), Core.hull.get(0));
 		}
 		if (Core.chAlg == ChAlg.JARVIS_MARCH) {
-			if (Algorithm.Q != null && Jarvis.next != null) drawLine(g2, Algorithm.Q, Jarvis.next);
-			if (Algorithm.Q != null && Algorithm.R != null) drawLine(g2, Algorithm.Q, Algorithm.R);
-			if (Algorithm.P != null && Algorithm.Q != null) drawLine(g2, Algorithm.P, Algorithm.Q);
+			if (HullAlg.Q != null && Jarvis.next != null) drawLine(g2, HullAlg.Q, Jarvis.next);
+			if (HullAlg.Q != null && HullAlg.R != null) drawLine(g2, HullAlg.Q, HullAlg.R);
+			if (HullAlg.P != null && HullAlg.Q != null) drawLine(g2, HullAlg.P, HullAlg.Q);
 		}
 
 		if (Graham.m1 != null && Graham.m2 != null) {
@@ -258,9 +264,9 @@ public class Canvass extends JPanel {
 	}
 
 	private static void drawLine(Graphics2D g2, Point p1, Point p2) {
-		if (p1 == Algorithm.P || (p1 == Algorithm.Q && p2 != Jarvis.next)) {
+		if (p1 == HullAlg.P || (p1 == HullAlg.Q && p2 != Jarvis.next)) {
 			g2.setColor(colours.get("red"));
-		} else if (p1 == Algorithm.Q && p2 == Jarvis.next) {
+		} else if (p1 == HullAlg.Q && p2 == Jarvis.next) {
 			g2.setColor(colours.get("purple"));
 		}
 		g2.drawLine(
