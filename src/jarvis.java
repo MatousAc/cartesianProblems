@@ -3,7 +3,7 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Jarvis extends Algorithm {
+public class Jarvis extends HullAlg {
 	protected static Point next;
 	
 	public static void march() {

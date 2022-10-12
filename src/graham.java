@@ -3,7 +3,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
  
-public class Graham extends Algorithm{
+public class Graham extends HullAlg{
 	public static Line m1 = null;
 	public static Line m2 = null;
 	

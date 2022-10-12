@@ -12,7 +12,7 @@ public class Core {
 	// private static Core single_instance = null;
 	protected static Canvass canvass;
 	static Mode mode;
-	static Problem problem = Problem.CONVEX_HULL;
+	static Problem problem;
 	static Speed speed = Speed.UNRESTRAINED;
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
 	static GenFx genFx = GenFx.RADIAL;
@@ -138,6 +138,7 @@ public class Core {
 	public static void reset() {
 		unsolve();
 		points.clear();
+		canvass.reset();
 	}
 	
 	/**
@@ -151,14 +152,21 @@ public class Core {
 
 	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
-		System.out.print("Select Mode (visual|auto): ");
+		System.out.print("Select Mode - [v]isual|[a]uto): ");
 		switch (scan.next().toLowerCase()) {
 			case "v":
 			case "visual": mode = Mode.VISUAL; break;
 			default: mode = Mode.AUTO; break;
 		}
+
+		System.out.print("Select Problem - [c]onvex hull|[m]inimum vertex cover): ");
+		switch (scan.next().toLowerCase()) {
+			case "c":
+			case "convex hull": problem = Problem.CONVEX_HULL; break;
+			default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
+		}
 		
-		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size : ";
+		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size: ";
 		System.out.print(msg);
 		genSize = scan.nextInt();
 		scan.close();
@@ -168,7 +176,7 @@ public class Core {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		SwingUtilities.invokeLater(() -> {
 			new AppWindow(
-				"Convex Hull", 
+				problem.toString(), 
 				(int)screenSize.getWidth(), (int)screenSize.getHeight(), 
 				canvass = new Canvass());
 		});

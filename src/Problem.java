@@ -1,6 +1,6 @@
 public enum Problem {
 	CONVEX_HULL,
-	VERTEX_COVER {
+	MINIMUM_VERTEX_COVER {
 		@Override
 			public Problem next() {
 					return CONVEX_HULL;
