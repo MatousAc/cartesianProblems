@@ -3,8 +3,12 @@ public class Brute extends CoverBase {
 
 	}
 // best = vertices
-// for every subset s or vertices
-// if S < best && S isCovers 
+// for every subset s of vertices
+// if S < best && S isCover 
 //  best = S
 // return best
+
+	static void subsets() {
+		// 
+	}
 }

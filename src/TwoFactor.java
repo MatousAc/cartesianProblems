@@ -8,9 +8,8 @@ public class TwoFactor extends CoverBase {
 // E'= G.E
 
 // while E' ≠ ∅:
-//     let (u, v) be an arbitrary edge of E'
-//     C = C ∪ {u, v}
-//     remove from E' every edge incident on either u or v
-
+//     pick a random edge in E' with vertices {u, v} 			| OP: pick random edge - O(1)/O(n)
+//     add U, V to the cover															| OP: add edge - O(1)
+//     remove any other edges connected to u or v from E'	| OP: O(n)
 // return C
 }

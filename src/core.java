@@ -230,7 +230,7 @@ public class Core {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		SwingUtilities.invokeLater(() -> {
 			new AppWindow(
-				problem.toString(), 
+				"Cartesian Problems", 
 				(int)screenSize.getWidth(), (int)screenSize.getHeight(), 
 				canvass = new Canvass());
 		});
