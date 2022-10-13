@@ -1,4 +1,5 @@
-enum Mode { 
+package enums;
+public enum Mode { 
 	VISUAL, 
 	AUTO;
 

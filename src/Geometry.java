@@ -1,6 +1,4 @@
-// Assignment Completed By Ac Hybl On March 19, 2020, 
-// In Partial Fulfillment Of CPTR-124-A.
-// Code mostly from previous Lab (intersection added)
+import enums.Bend;
 
 public class Geometry {
 	private static double abs(double value) {

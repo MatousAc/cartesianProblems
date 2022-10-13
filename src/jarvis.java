@@ -3,17 +3,17 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Jarvis extends HullAlg {
+public class Jarvis extends HullBase {
 	protected static Point next;
 	
 	public static void march() {
-		pointCopy = (ArrayList<Point>) Core.points.clone();
+		pointCopy = (ArrayList<Point>) points.clone();
 		start = findStartPoint(pointCopy);
 		
 		P = new Point(start.x, start.y - 1); 
 		Q = start; next = start;
-		while (next != start || Core.hull.size() == 0) {
-			Core.hull.add(next); Core.show();
+		while (next != start || hull.size() == 0) {
+			hull.add(next); Core.show();
 			double maxAngle = Double.MIN_VALUE;
 			double maxDist = 0;
 

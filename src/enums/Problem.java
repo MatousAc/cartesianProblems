@@ -1,3 +1,4 @@
+package enums;
 public enum Problem {
 	CONVEX_HULL,
 	MINIMUM_VERTEX_COVER {

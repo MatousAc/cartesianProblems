@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Scanner;
+import enums.*;
 
 public class Core {
 	// high level resources
@@ -15,12 +16,11 @@ public class Core {
 	static Problem problem;
 	static Speed speed = Speed.UNRESTRAINED;
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
+	static VcAlg vcAlg = VcAlg.BRUTE_FORCE;
 	static GenFx genFx = GenFx.RADIAL;
 	static int genSize = 0;
+	static double density = 0.5;
 	static boolean solved = false;
-	// basic problem resources
-	static ArrayList<Point> points = new ArrayList<Point>();
-	static ArrayList<Point> hull = new ArrayList<Point>();
 
 	public static void main(String[] args) {
 		getParams();
@@ -32,7 +32,12 @@ public class Core {
 	 * conducts an automated run of both algorithms
 	 */
 	public static void auto() {
-		dataWrite("algorithm,generation style,problem size,solution size,duration (s)\n");
+		// header
+		dataWrite("algorithm,generation style,");
+		if (isCH()) dataWrite("problem size,");
+		else dataWrite("vertex count,edge count,");
+		dataWrite("solution size,duration (s)\n");
+
 		ArrayList<ChAlg> algs = new ArrayList<ChAlg>(EnumSet.allOf(ChAlg.class));
 		ArrayList<GenFx> styles = new ArrayList<GenFx>(
 			EnumSet.allOf(GenFx.class)
@@ -72,13 +77,20 @@ public class Core {
 	 */
 	public static void solve() {
 		unsolve();
-		if (points.size() < 3) {
-			System.out.print("convex hull impossible");
-			return;
-		}
-		switch (chAlg) {
-			case JARVIS_MARCH: Jarvis.march(); break;
-			case GRAHAM_SCAN: Graham.scan(); break;
+		if (isCH()) {
+			if (HullBase.points.size() < 3) {
+				System.out.print("convex hull impossible");
+				return;
+			}
+			switch (chAlg) {
+				case JARVIS_MARCH: Jarvis.march(); break;
+				case GRAHAM_SCAN: Graham.scan(); break;
+			}
+		} else {
+			switch (vcAlg) {
+				case BRUTE_FORCE: Jarvis.march(); break;
+				case TWO_FACTOR_APPROXIMATION: break;
+			}
 		}
 	}
 	
@@ -87,17 +99,26 @@ public class Core {
 	 */
 	static void unsolve() {
 		solved = false;
-		hull.clear();
-		Graham.start = null;
-		Graham.P = null;
-		Graham.Q = null;
-		Graham.R = null;
+		if (isCH()) {
+			HullBase.hull.clear();
+			HullBase.start = null;
+			HullBase.P = null;
+			HullBase.Q = null;
+			HullBase.R = null;
+		} else {
+
+		}
 	}
 	
 	// helpers //
 	private static String dataPieces(double duration) {
-		return chAlg + "," + genFx + "," + points.size() + "," + 
-				hull.size() + "," + duration + "\n";
+		if (isCH()) {
+			return chAlg + "," + genFx + "," + HullBase.points.size() + "," + 
+			HullBase.hull.size() + "," + duration + "\n";
+		} else if (!isCH()) {
+			return vcAlg + "," + genFx + "," + "vertex count, edge count" + "," + 
+			"solution size" + "," + duration + "\n";
+		} else return "";
 	}
 	private static void dataWrite(String data, String file) {
 		try {
@@ -112,13 +133,42 @@ public class Core {
 		dataWrite(data, "performance.csv");
 	}
 
+	public static void nextAlg() {
+		if (isCH()) {
+			chAlg = chAlg.next();
+		} else if (problem == Problem.MINIMUM_VERTEX_COVER) {
+			vcAlg = vcAlg.next();
+		}
+	}
+
+	public static String getAlgAsString() {
+		if (isCH()) {
+			return chAlg.toString();
+		} else if (problem == Problem.MINIMUM_VERTEX_COVER) {
+			return vcAlg.toString();
+		} else {
+			return "None";
+		}
+	}
+
+	public static void densityUp() {
+		density += 0.1;
+		if (density > 1) density = 1;
+	}
+
+	public static void densityDown() {
+		density -= 0.1;
+		if (density < 0) density = 0;
+	}
+
 	/**
 	 * Adds a point when user interacts with UI.
 	 * Unsolves problem.
 	 * @param p
 	 */
 	static void addPointManually(Point p) {
-		points.add(p);
+		if (isCH()) HullBase.points.add(p);
+		else if (!isCH()); // FIXME
 		unsolve();
 	}
 	
@@ -128,7 +178,8 @@ public class Core {
 	 * @param p
 	 */
 	static void removePointManually(Point p) {
-		points.remove(p);
+		if (isCH()) HullBase.points.remove(p);
+		else if (!isCH()); // FIXME
 		unsolve();
 	}
 
@@ -137,7 +188,8 @@ public class Core {
 	 */
 	public static void reset() {
 		unsolve();
-		points.clear();
+		if (isCH()) HullBase.points.clear();
+		else if (!isCH()); // FIXME
 		canvass.reset();
 	}
 	
@@ -152,19 +204,21 @@ public class Core {
 
 	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
-		System.out.print("Select Mode - [v]isual|[a]uto): ");
+		System.out.print("Select Mode (\033[4mv\033[0misual|\033[4ma\033[0muto): ");
 		switch (scan.next().toLowerCase()) {
 			case "v":
 			case "visual": mode = Mode.VISUAL; break;
 			default: mode = Mode.AUTO; break;
 		}
 
-		System.out.print("Select Problem - [c]onvex hull|[m]inimum vertex cover): ");
-		switch (scan.next().toLowerCase()) {
-			case "c":
-			case "convex hull": problem = Problem.CONVEX_HULL; break;
-			default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
-		}
+		if (isAuto()) {
+			System.out.print("Select Problem (\033[4mc\033[0monvex hull|\033[4mm\033[0minimum \033[4mv\033[0mertex cover): ");
+			switch (scan.next().toLowerCase()) {
+				case "c":
+				case "convex hull": problem = Problem.CONVEX_HULL; break;
+				default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
+			}
+		}  else { problem = Problem.CONVEX_HULL; }
 		
 		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size: ";
 		System.out.print(msg);
@@ -183,4 +237,5 @@ public class Core {
 	}
 
 	private static boolean isAuto() { return mode == Mode.AUTO; }
+	private static boolean isCH() { return problem == Problem.CONVEX_HULL; }
 }

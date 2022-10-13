@@ -1,4 +1,5 @@
 import java.util.Random;
+import enums.*;
 
 public class Generator {
 	private static Random rand = new Random();
@@ -39,7 +40,7 @@ public class Generator {
 			double radius = Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad));
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			Core.points.add(new Point(x, y));
+			HullBase.points.add(new Point(x, y));
 		}
 	}
 
@@ -51,7 +52,7 @@ public class Generator {
 			int y = rand.nextInt((int) (height * 0.96));
 			x += width * 0.02;
 			y += height * 0.02;
-			Core.points.add(new Point(x, y));
+			HullBase.points.add(new Point(x, y));
 		}
 	}
 
@@ -64,7 +65,7 @@ public class Generator {
 			double angle = rand.nextDouble(Math.PI * 2);
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			Core.points.add(new Point(x, y));
+			HullBase.points.add(new Point(x, y));
 		}
 	}
 
@@ -78,7 +79,7 @@ public class Generator {
 			double radius = Math.max(rand.nextInt(halfMax), rand.nextInt(halfMax));
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			Core.points.add(new Point(x, y));
+			HullBase.points.add(new Point(x, y));
 		}
 	}
 
@@ -86,7 +87,7 @@ public class Generator {
 		for (int i = 0; i < n; i++) {
 			int x = rand.nextInt() & Integer.MAX_VALUE; // make positive
 			int y = rand.nextInt() & Integer.MAX_VALUE;
-			Core.points.add(new Point(x, y));
+			HullBase.points.add(new Point(x, y));
 		}
 	}
 
@@ -99,7 +100,7 @@ public class Generator {
 			double angle = rand.nextDouble(Math.PI * 2);
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			Core.points.add(new Point(x, y));
+			HullBase.points.add(new Point(x, y));
 		}
 	}
 }
