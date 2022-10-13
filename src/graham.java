@@ -8,6 +8,7 @@ import enums.*;
 public class Graham extends HullBase{
 	public static Line m1 = null;
 	public static Line m2 = null;
+	static ArrayList<Point> pointCopy;
 	
 	public static void scan() {
 		pointCopy = (ArrayList<Point>) points.clone();

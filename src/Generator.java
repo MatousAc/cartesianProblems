@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Random;
 import enums.*;
 
@@ -11,65 +12,67 @@ public class Generator {
 	 */
 	public static void generatePoints(int n) {
 		Core.unsolve();
+		ArrayList<Point> dest;
+		dest = (Core.problem == Problem.CONVEX_HULL) ? HullBase.points: CoverBase.vertices;
 		if (Core.mode == Mode.VISUAL && Core.genFx == GenFx.RADIAL) {
-			Generator.radialScreen();
+			radialScreen(n, dest);
 		} else if (Core.mode == Mode.VISUAL && Core.genFx == GenFx.RECTANGULAR) {
-			Generator.rectangularScreen();
+			rectangularScreen(n, dest);
 		} else if (Core.mode == Mode.VISUAL && Core.genFx == GenFx.CIRCULAR) {
-			Generator.circularScreen();
+			circularScreen(n, dest);
 		} else if (Core.mode == Mode.AUTO && Core.genFx == GenFx.RADIAL) {
-			Generator.radialAuto(n);
+			radialAuto(n, dest);
 		} else if (Core.mode == Mode.AUTO && Core.genFx == GenFx.RECTANGULAR) {
-			Generator.rectangularAuto(n);
+			rectangularAuto(n, dest);
 		} else if (Core.mode == Mode.AUTO && Core.genFx == GenFx.CIRCULAR) {
-			Generator.circularAuto(n);
+			circularAuto(n, dest);
 		}
 	}
 
 	public static void generatePoints() { generatePoints(Core.genSize); }
 
-	public static void radialScreen() {
+	public static void radialScreen(int n, ArrayList<Point> dest) {
 		Canvass c = Core.canvass;
 		// set min && max
 		Point midPoint = new Point(c.getWidth() / 2, c.getHeight() / 2);
 		int maxRad = (int) (Math.min(c.getWidth() * 0.95, c.getHeight() * 0.95) / 2);
 		
 		// generate points using a midpoint and radius
-		for (int i = 0; i < Core.genSize; i++) {
+		for (int i = 0; i < n; i++) {
 			double angle = rand.nextDouble(Math.PI * 2);
 			double radius = Math.max(rand.nextInt(maxRad), rand.nextInt(maxRad));
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			HullBase.points.add(new Point(x, y));
+			dest.add(new Point(x, y));
 		}
 	}
 
-	public static void rectangularScreen() {
+	public static void rectangularScreen(int n, ArrayList<Point> dest) {
 		int width = Core.canvass.getWidth();
 		int height = Core.canvass.getHeight();
-		for (int i = 0; i < Core.genSize; i++) {
+		for (int i = 0; i < n; i++) {
 			int x = rand.nextInt((int) (width * 0.96));
 			int y = rand.nextInt((int) (height * 0.96));
 			x += width * 0.02;
 			y += height * 0.02;
-			HullBase.points.add(new Point(x, y));
+			dest.add(new Point(x, y));
 		}
 	}
 
-	public static void circularScreen() {
+	public static void circularScreen(int n, ArrayList<Point> dest) {
 		Canvass c = Core.canvass;
 		Point midPoint = new Point(c.getWidth() / 2, c.getHeight() / 2);
 		int radius = (int) (Math.min(c.getWidth() * 0.95, c.getHeight() * 0.95) / 2);
 		
-		for (int i = 0; i < Core.genSize; i++) {
+		for (int i = 0; i < n; i++) {
 			double angle = rand.nextDouble(Math.PI * 2);
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			HullBase.points.add(new Point(x, y));
+			dest.add(new Point(x, y));
 		}
 	}
 
-	public static void radialAuto(int n) {
+	public static void radialAuto(int n, ArrayList<Point> dest) {
 		int halfMax = (int) (Integer.MAX_VALUE / 2.1);
 		// I divide by 2.1 to make sure to avoid integer overflow
 		Point midPoint = new Point(halfMax, halfMax);
@@ -79,19 +82,19 @@ public class Generator {
 			double radius = Math.max(rand.nextInt(halfMax), rand.nextInt(halfMax));
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			HullBase.points.add(new Point(x, y));
+			dest.add(new Point(x, y));
 		}
 	}
 
-	public static void rectangularAuto(int n) {
+	public static void rectangularAuto(int n, ArrayList<Point> dest) {
 		for (int i = 0; i < n; i++) {
 			int x = rand.nextInt() & Integer.MAX_VALUE; // make positive
 			int y = rand.nextInt() & Integer.MAX_VALUE;
-			HullBase.points.add(new Point(x, y));
+			dest.add(new Point(x, y));
 		}
 	}
 
-	public static void circularAuto(int n) {
+	public static void circularAuto(int n, ArrayList<Point> dest) {
 		int halfMax = (int) (Integer.MAX_VALUE / 2.1);
 		Point midPoint = new Point(halfMax, halfMax);
 		int radius = halfMax;
@@ -100,7 +103,7 @@ public class Generator {
 			double angle = rand.nextDouble(Math.PI * 2);
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
-			HullBase.points.add(new Point(x, y));
+			dest.add(new Point(x, y));
 		}
 	}
 }

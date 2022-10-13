@@ -1,14 +1,12 @@
 // code from Andre Violentyev was used to guide the writing of some of this algorithm
 // https://bitbucket.org/StableSort/play/src/master/src/com/stablesort/convexhull/ConvexHullJarvisMarch.java
-import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Jarvis extends HullBase {
 	protected static Point next;
 	
 	public static void march() {
-		pointCopy = (ArrayList<Point>) points.clone();
-		start = findStartPoint(pointCopy);
+		start = findStartPoint(points);
 		
 		P = new Point(start.x, start.y - 1); 
 		Q = start; next = start;
@@ -18,7 +16,7 @@ public class Jarvis extends HullBase {
 			double maxDist = 0;
 
 			// pick point that creates the largest angle
-			Iterator<Point> iter = pointCopy.iterator();
+			Iterator<Point> iter = points.iterator();
 			while (iter.hasNext()) {
 				R = iter.next();
 				if (P == Q || Q == R || R == P) continue;

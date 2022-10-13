@@ -20,7 +20,11 @@ public class Canvass extends JPanel {
 
 	public Canvass() {
 		reset();
-		points = (Core.problem == Problem.CONVEX_HULL) ? HullBase.points: null; //FIXME
+		if (Core.problem == Problem.CONVEX_HULL) {
+			points = HullBase.points;
+		} else {
+			points = CoverBase.vertices;
+		}
 		// design
 		setBackground(Color.WHITE);
 		setLayout(null);
@@ -85,7 +89,8 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
 					if (helpOn) helpOn = false;
-					else Core.reset(); break;
+					else Core.reset();
+					break;
 				case KeyEvent.VK_DELETE:
 				case KeyEvent.VK_BACK_SPACE:
 					Core.removePointManually(selectedPoint);
@@ -94,18 +99,24 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_PLUS:
 				case KeyEvent.VK_EQUALS: Core.genSize++; break;
 				case KeyEvent.VK_MINUS: Core.genSize--; break;
-				case KeyEvent.VK_I:
 				case KeyEvent.VK_UP:
 					Core.speed = Core.speed.increase(); break;
-				case KeyEvent.VK_D:
 				case KeyEvent.VK_DOWN:
 					Core.speed = Core.speed.decrease(); break;
 				case KeyEvent.VK_P:
-					Core.problem = Core.problem.next();
-				case KeyEvent.VK_A: Core.nextAlg(); break;
+					Core.problem = Core.problem.next(); break;
+				case KeyEvent.VK_I:
+					Core.densityUp(); break;
+				case KeyEvent.VK_D:
+					Core.densityDown(); break;
+					case KeyEvent.VK_A: Core.nextAlg(); break;
 				case KeyEvent.VK_F:
 					Core.genFx = Core.genFx.next(); break;
-				default: helpOn = true;
+				case KeyEvent.VK_ALT:
+				case KeyEvent.VK_CONTROL:
+				case KeyEvent.VK_WINDOWS:
+					break; // nothing for alt, win, ctrl
+				default: helpOn = true; // otherwise help
 				}
 				repaint();
 			}
@@ -243,7 +254,7 @@ public class Canvass extends JPanel {
 	// vertex cover painting
 	private void paintVC(Graphics2D g2) {
 		drawSpecialVC(g2);
-		drawPoints(g2);
+		if (points != null) drawPoints(g2);
 	}
 
 	private void drawSpecialVC(Graphics2D g2) {
@@ -345,10 +356,10 @@ public class Canvass extends JPanel {
 		if (Core.problem == Problem.CONVEX_HULL) {
 			labels.add("problem size");	vals.add(((Integer) HullBase.points.size()).toString());
 		} else {
-			labels.add("connection f(x)");	vals.add("function");
+			labels.add("connection f(x)");vals.add("function");
 			labels.add("vertex count");	vals.add("vertices");
 			labels.add("edge count");		vals.add("edges");
-			labels.add("graph density");	vals.add(((Double) Core.density).toString());
+			labels.add("graph density");	vals.add(String.format("%.02f", Core.density));
 
 		}
 		labels.add("solution size");		vals.add(((Integer) HullBase.hull.size()).toString());

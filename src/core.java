@@ -151,16 +151,6 @@ public class Core {
 		}
 	}
 
-	public static void densityUp() {
-		density += 0.1;
-		if (density > 1) density = 1;
-	}
-
-	public static void densityDown() {
-		density -= 0.1;
-		if (density < 0) density = 0;
-	}
-
 	/**
 	 * Adds a point when user interacts with UI.
 	 * Unsolves problem.
@@ -168,7 +158,7 @@ public class Core {
 	 */
 	static void addPointManually(Point p) {
 		if (isCH()) HullBase.points.add(p);
-		else if (!isCH()); // FIXME
+		else if (!isCH()) CoverBase.vertices.add(p);
 		unsolve();
 	}
 	
@@ -179,7 +169,7 @@ public class Core {
 	 */
 	static void removePointManually(Point p) {
 		if (isCH()) HullBase.points.remove(p);
-		else if (!isCH()); // FIXME
+		else if (!isCH()) CoverBase.vertices.remove(p);
 		unsolve();
 	}
 
@@ -189,10 +179,20 @@ public class Core {
 	public static void reset() {
 		unsolve();
 		if (isCH()) HullBase.points.clear();
-		else if (!isCH()); // FIXME
+		else if (!isCH()) CoverBase.vertices.clear();
 		canvass.reset();
 	}
 	
+	public static void densityUp() {
+		density += 0.1;
+		if (density > 1) density = 1;
+	}
+
+	public static void densityDown() {
+		density -= 0.1;
+		if (density < 0) density = 0;
+	}
+
 	/**
 	 * gets our gui to repaint if in visual mode
 	 */
@@ -218,7 +218,7 @@ public class Core {
 				case "convex hull": problem = Problem.CONVEX_HULL; break;
 				default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
 			}
-		}  else { problem = Problem.CONVEX_HULL; }
+		}  else { problem = Problem.MINIMUM_VERTEX_COVER; }
 		
 		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size: ";
 		System.out.print(msg);

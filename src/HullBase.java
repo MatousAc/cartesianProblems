@@ -3,7 +3,6 @@ import java.util.ArrayList;
 public class HullBase {
 	static ArrayList<Point> points = new ArrayList<Point>();
 	static ArrayList<Point> hull = new ArrayList<Point>();
-	static ArrayList<Point> pointCopy;
 	static Point start;
 	static Point P = null;
 	static Point Q = null;
