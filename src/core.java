@@ -16,7 +16,7 @@ public class Core {
 	static Problem problem;
 	static Speed speed = Speed.UNRESTRAINED;
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
-	static VcAlg vcAlg = VcAlg.BRUTE_FORCE;
+	static VcAlg vcAlg = VcAlg.EXACT_EXHAUSTIVE;
 	static GenFx genFx = GenFx.RADIAL;
 	static int genSize = 0;
 	static double density = 0.1;
@@ -88,9 +88,10 @@ public class Core {
 			}
 		} else {
 			switch (vcAlg) {
-				case BRUTE_FORCE: Brute.force(); break;
-				case REMOVE_ONE_BY_ONE: RMOneByOne.approximation(); break;
-				case TWO_FACTOR_APPROXIMATION: TwoFactor.approximation(); break;
+				case EXACT_EXHAUSTIVE: Exact.exhaustive(); break;
+				case EXACT_INCREASING_ORDER: Exact.exhaustive(); break;
+				case APPROXIMATION_ONE_BY_ONE: Approximation.oneByOne(); break;
+				case APPROXIMATION_TWO_FACTOR: Approximation.twoFactor(); break;
 			}
 		}
 	}
@@ -108,7 +109,7 @@ public class Core {
 			HullBase.R = null;
 		} else {
 			CoverBase.cover.clear();
-			TwoFactor.curEdge = null;
+			Approximation.curEdge = null;
 		}
 	}
 	

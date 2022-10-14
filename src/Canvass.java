@@ -39,6 +39,7 @@ public class Canvass extends JPanel {
 		colours.put("darkGreen", new Color(60, 73, 17));
 		colours.put("purple", new Color(161, 22, 146));
 		colours.put("default", new Color(11, 5, 0));
+		colours.put("white", new Color(255, 255, 255));
 
 		// events
 		mouseAdapter = new MouseAdapter() {
@@ -284,6 +285,7 @@ public class Canvass extends JPanel {
 	private static void drawPoint(Graphics2D g2, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
+		boolean filled = true;
 		if (p == HullBase.start) {
 			g2.setColor(colours.get("darkBlue"));
 			size *= 1.5;
@@ -295,19 +297,29 @@ public class Canvass extends JPanel {
 			g2.setColor(colours.get("lightBlue"));
 		} else if (HullBase.hull.contains(p)) {
 			g2.setColor(colours.get("lightGreen"));
-		} else if (TwoFactor.curEdge != null && 
-			TwoFactor.curEdge.contains(p)) {
-			g2.setColor(colours.get("lightBlue"));
+		} else if (p == CoverBase.u || p == CoverBase.v) {
+			g2.setColor(colours.get("orange"));
 			size *= 1.5;
 		} else if (CoverBase.cover != null && 
 			CoverBase.cover.contains(p)) {
 			g2.setColor(colours.get("purple"));
 			size *= 1.5;
 		}
+		if (Exact.currentCover.contains(p)) filled = false;
+		
 		// draw point
 		int actSz = size + 6;
 		int x = (int) Math.round(p.x), y = (int) Math.round(p.y);
-		g2.fillOval(x - (size / 2), y - (size / 2), size, size);
+		if (filled) {
+			g2.fillOval(x - (size / 2), y - (size / 2), size, size);
+		} else {
+			Color tempColor = g2.getColor();
+			g2.setColor(colours.get("white"));
+			g2.fillOval(x - (size / 3), y - (size / 3), size, size);
+			g2.setColor(tempColor);
+			g2.drawOval(x - (size / 2), y - (size / 2), size, size);
+		}
+		
 		if (p == selectedPoint) {
 			g2.drawOval(x - (actSz / 2), y - (actSz / 2), actSz, actSz);
 		}
@@ -344,16 +356,16 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawEdge(Graphics2D g2, Edge e) {
-		if (e == TwoFactor.curEdge) {
+		if (e == Approximation.curEdge) {
 			g2.setColor(colours.get("red"));
 			g2.setStroke(new BasicStroke(4));
-		} else if (e == TwoFactor.rmEdge) {
+		} else if (e == Approximation.rmEdge) {
 			g2.setColor(colours.get("gold"));
 			g2.setStroke(new BasicStroke(4));
-		} else if (TwoFactor.edgeSet != null && 
-			TwoFactor.edgeSet.contains(e)) {
+		} else if (Approximation.edgeSet != null && 
+			Approximation.edgeSet.contains(e)) {
 			g2.setColor(colours.get("darkGreen"));
-			g2.setStroke(new BasicStroke(2));
+			g2.setStroke(new BasicStroke(3));
 		} else {
 			g2.setColor(colours.get("default"));
 			g2.setStroke(new BasicStroke(1));

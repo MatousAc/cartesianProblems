@@ -1,11 +1,12 @@
 package enums;
 public enum VcAlg {
-	BRUTE_FORCE,
-	TWO_FACTOR_APPROXIMATION,
-	REMOVE_ONE_BY_ONE {
+	EXACT_EXHAUSTIVE,
+	EXACT_INCREASING_ORDER,
+	APPROXIMATION_TWO_FACTOR,
+	APPROXIMATION_ONE_BY_ONE {
 			@Override
 			public VcAlg next() {
-					return BRUTE_FORCE;
+					return EXACT_EXHAUSTIVE;
 			};
 	};
 
