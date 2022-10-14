@@ -19,7 +19,7 @@ public class Core {
 	static VcAlg vcAlg = VcAlg.BRUTE_FORCE;
 	static GenFx genFx = GenFx.RADIAL;
 	static int genSize = 0;
-	static double density = 0.5;
+	static double density = 0.1;
 	static boolean solved = false;
 
 	public static void main(String[] args) {
@@ -88,8 +88,9 @@ public class Core {
 			}
 		} else {
 			switch (vcAlg) {
-				case BRUTE_FORCE: Jarvis.march(); break;
-				case TWO_FACTOR_APPROXIMATION: break;
+				case BRUTE_FORCE: Brute.force(); break;
+				case REMOVE_ONE_BY_ONE: RMOneByOne.approximation(); break;
+				case TWO_FACTOR_APPROXIMATION: TwoFactor.approximation(); break;
 			}
 		}
 	}
@@ -106,7 +107,8 @@ public class Core {
 			HullBase.Q = null;
 			HullBase.R = null;
 		} else {
-
+			CoverBase.cover.clear();
+			TwoFactor.curEdge = null;
 		}
 	}
 	
@@ -158,7 +160,7 @@ public class Core {
 	 */
 	static void addPointManually(Point p) {
 		if (isCH()) HullBase.points.add(p);
-		else if (!isCH()) CoverBase.vertices.add(p);
+		else if (!isCH()) CoverBase.graph.vertices.add(p);
 		unsolve();
 	}
 	
@@ -169,7 +171,7 @@ public class Core {
 	 */
 	static void removePointManually(Point p) {
 		if (isCH()) HullBase.points.remove(p);
-		else if (!isCH()) CoverBase.vertices.remove(p);
+		else if (!isCH()) CoverBase.graph.vertices.remove(p);
 		unsolve();
 	}
 
@@ -179,17 +181,24 @@ public class Core {
 	public static void reset() {
 		unsolve();
 		if (isCH()) HullBase.points.clear();
-		else if (!isCH()) CoverBase.vertices.clear();
+		else if (!isCH()) {
+			CoverBase.graph.vertices.clear();
+			CoverBase.graph.edges.clear();
+		}
 		canvass.reset();
 	}
 	
 	public static void densityUp() {
-		density += 0.1;
+		if (densityEnds()) density += 0.01;
+		else density += 0.1;
+
 		if (density > 1) density = 1;
 	}
 
 	public static void densityDown() {
-		density -= 0.1;
+		if (densityEnds()) density -= 0.01;
+		else density -= 0.1;
+
 		if (density < 0) density = 0;
 	}
 
@@ -236,6 +245,7 @@ public class Core {
 		});
 	}
 
-	private static boolean isAuto() { return mode == Mode.AUTO; }
-	private static boolean isCH() { return problem == Problem.CONVEX_HULL; }
+	public static boolean isAuto() { return mode == Mode.AUTO; }
+	public static boolean isCH() { return problem == Problem.CONVEX_HULL; }
+	public static boolean densityEnds() { return density <= 0.1 || density >= 0.9; }
 }

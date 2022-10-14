@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
 import java.util.Set;
 
 public class Utility {
@@ -40,4 +42,23 @@ public class Utility {
 		return false;
 	}
 
+	// from geeksforgeeks.com
+	static <E> E randomSetElem(Set<? extends E> set) { 
+		Random random = new Random();
+		int randomNumber = random.nextInt(set.size()); 
+		Iterator<? extends E> iterator = set.iterator(); 
+
+		int currentIndex = 0; 
+		E randomElement = null; 
+		// iterate the HashSet 
+		while (iterator.hasNext()) { 
+				randomElement = iterator.next(); 
+				// if current index is equal to random number 
+				if (currentIndex == randomNumber) 
+						return randomElement; 
+				// increase the current index 
+				currentIndex++; 
+		}
+	return randomElement; 
+} 
 }

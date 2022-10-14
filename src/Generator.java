@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Random;
 import enums.*;
 
@@ -6,26 +7,31 @@ public class Generator {
 	private static Random rand = new Random();
 
 	/**
-	 * Generates points on canvas in a radial
-	 * or rectangular pattern. restricts it to the
+	 * Generates points on canvas in a radial, rectangular,
+	 * or circular pattern. restricts it to the
 	 * screen size when in visual mode.
 	 */
 	public static void generatePoints(int n) {
 		Core.unsolve();
 		ArrayList<Point> dest;
-		dest = (Core.problem == Problem.CONVEX_HULL) ? HullBase.points: CoverBase.vertices;
-		if (Core.mode == Mode.VISUAL && Core.genFx == GenFx.RADIAL) {
+		dest = (Core.isCH()) ? HullBase.points: CoverBase.graph.vertices;
+		
+		if (!Core.isAuto() && Core.genFx == GenFx.RADIAL) {
 			radialScreen(n, dest);
-		} else if (Core.mode == Mode.VISUAL && Core.genFx == GenFx.RECTANGULAR) {
+		} else if (!Core.isAuto() && Core.genFx == GenFx.RECTANGULAR) {
 			rectangularScreen(n, dest);
-		} else if (Core.mode == Mode.VISUAL && Core.genFx == GenFx.CIRCULAR) {
+		} else if (!Core.isAuto() && Core.genFx == GenFx.CIRCULAR) {
 			circularScreen(n, dest);
-		} else if (Core.mode == Mode.AUTO && Core.genFx == GenFx.RADIAL) {
+		} else if (Core.isAuto() && Core.genFx == GenFx.RADIAL) {
 			radialAuto(n, dest);
-		} else if (Core.mode == Mode.AUTO && Core.genFx == GenFx.RECTANGULAR) {
+		} else if (Core.isAuto() && Core.genFx == GenFx.RECTANGULAR) {
 			rectangularAuto(n, dest);
-		} else if (Core.mode == Mode.AUTO && Core.genFx == GenFx.CIRCULAR) {
+		} else if (Core.isAuto() && Core.genFx == GenFx.CIRCULAR) {
 			circularAuto(n, dest);
+		}
+
+		if (!Core.isCH()) {
+			genEdges(CoverBase.graph);
 		}
 	}
 
@@ -104,6 +110,18 @@ public class Generator {
 			int x = (int) (Math.cos(angle) * radius + midPoint.x);
 			int y = (int) (Math.sin(angle) * radius + midPoint.y);
 			dest.add(new Point(x, y));
+		}
+	}
+
+	public static void genEdges(Graph graph) {
+		ArrayList<Point> vertices = graph.vertices;
+		Iterator<Point> i = vertices.iterator(),  j = vertices.iterator();
+		for (Point u : vertices) {
+			for (Point v : vertices) {
+				if (u != v && rand.nextDouble() <= Core.density) {
+					graph.edges.add(new Edge(u, v));
+				}
+			}
 		}
 	}
 }

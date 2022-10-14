@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
+
 import enums.*;
 
 @SuppressWarnings("serial")
@@ -20,10 +22,10 @@ public class Canvass extends JPanel {
 
 	public Canvass() {
 		reset();
-		if (Core.problem == Problem.CONVEX_HULL) {
+		if (Core.isCH()) {
 			points = HullBase.points;
 		} else {
-			points = CoverBase.vertices;
+			points = CoverBase.graph.vertices;
 		}
 		// design
 		setBackground(Color.WHITE);
@@ -32,6 +34,7 @@ public class Canvass extends JPanel {
 		colours.put("darkBlue", new Color(28, 114, 147));
 		colours.put("gold", new Color(249, 166, 32));
 		colours.put("red", new Color(253, 21, 27));
+		colours.put("orange", new Color(237, 106, 90));
 		colours.put("lightGreen", new Color(84, 140, 47));
 		colours.put("darkGreen", new Color(60, 73, 17));
 		colours.put("purple", new Color(161, 22, 146));
@@ -115,7 +118,8 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_ALT:
 				case KeyEvent.VK_CONTROL:
 				case KeyEvent.VK_WINDOWS:
-					break; // nothing for alt, win, ctrl
+				case KeyEvent.VK_PAUSE:
+					break; // nothing for special keys
 				default: helpOn = true; // otherwise help
 				}
 				repaint();
@@ -196,11 +200,11 @@ public class Canvass extends JPanel {
 		graphicDefaults(g2);
 		g2.translate(0, height());
 		g2.scale(1, -1); // Invert y-axis
-		if (Core.problem == Problem.CONVEX_HULL) {
+		if (Core.isCH()) {
 			points = HullBase.points;
 			paintCH(g2);
-		} else if (Core.problem == Problem.MINIMUM_VERTEX_COVER) {
-			// points = HullBase.points; // FIXME
+		} else if (!Core.isCH()) {
+			points = CoverBase.graph.vertices;
 			paintVC(g2);
 		}
 		
@@ -230,7 +234,7 @@ public class Canvass extends JPanel {
 	private void drawSpecialCH(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		if (Core.solved && Core.problem == Problem.CONVEX_HULL) {
+		if (Core.solved && Core.isCH()) {
 			drawLine(g2, HullBase.back(0), HullBase.hull.get(0));
 		}
 		if (Core.chAlg == ChAlg.JARVIS_MARCH) {
@@ -253,8 +257,17 @@ public class Canvass extends JPanel {
 
 	// vertex cover painting
 	private void paintVC(Graphics2D g2) {
+		drawEdges(g2);
 		drawSpecialVC(g2);
 		if (points != null) drawPoints(g2);
+		
+		graphicDefaults(g2);
+	}
+
+	private void drawEdges(Graphics2D g2) {
+		for (Edge edge : CoverBase.graph.edges) {
+			drawEdge(g2, edge);
+		}
 	}
 
 	private void drawSpecialVC(Graphics2D g2) {
@@ -268,35 +281,43 @@ public class Canvass extends JPanel {
 		}
 	}
 
-	private static void drawPoint(Graphics2D g, Point p, Boolean coordinate) {
+	private static void drawPoint(Graphics2D g2, Point p, Boolean coordinate) {
 		// control colour and size
 		int size = NORMAL_SIZE;
 		if (p == HullBase.start) {
-			g.setColor(colours.get("darkBlue"));
+			g2.setColor(colours.get("darkBlue"));
 			size *= 1.5;
 		} else if (p == HullBase.P || p == HullBase.Q || p == HullBase.R) {
-			g.setColor(colours.get("gold"));
+			g2.setColor(colours.get("gold"));
 			size *= 1.08;
 		} else if (p == Jarvis.next) {
 			size *= 1.5;
-			g.setColor(colours.get("lightBlue"));
+			g2.setColor(colours.get("lightBlue"));
 		} else if (HullBase.hull.contains(p)) {
-			g.setColor(colours.get("lightGreen"));
+			g2.setColor(colours.get("lightGreen"));
+		} else if (TwoFactor.curEdge != null && 
+			TwoFactor.curEdge.contains(p)) {
+			g2.setColor(colours.get("lightBlue"));
+			size *= 1.5;
+		} else if (CoverBase.cover != null && 
+			CoverBase.cover.contains(p)) {
+			g2.setColor(colours.get("purple"));
+			size *= 1.5;
 		}
 		// draw point
 		int actSz = size + 6;
 		int x = (int) Math.round(p.x), y = (int) Math.round(p.y);
-		g.fillOval(x - (size / 2), y - (size / 2), size, size);
+		g2.fillOval(x - (size / 2), y - (size / 2), size, size);
 		if (p == selectedPoint) {
-			g.drawOval(x - (actSz / 2), y - (actSz / 2), actSz, actSz);
+			g2.drawOval(x - (actSz / 2), y - (actSz / 2), actSz, actSz);
 		}
 		// in case I want the coordinates
 		if (coordinate) {
-			g.scale(1, -1);
-			g.drawString(p.toString(), x + 10, -y - 10);
-			g.scale(1, -1);
+			g2.scale(1, -1);
+			g2.drawString(p.toString(), x + 10, -y - 10);
+			g2.scale(1, -1);
 		}
-		graphicDefaults(g);
+		graphicDefaults(g2);
 	}
 
 	private static void drawPoint(Graphics2D g, Point p) {
@@ -320,6 +341,33 @@ public class Canvass extends JPanel {
 	
 	private void drawLine(Graphics2D g2, Line l) {
 		drawLine(g2, l.p1, l.p2);
+	}
+
+	private void drawEdge(Graphics2D g2, Edge e) {
+		if (e == TwoFactor.curEdge) {
+			g2.setColor(colours.get("red"));
+			g2.setStroke(new BasicStroke(4));
+		} else if (e == TwoFactor.rmEdge) {
+			g2.setColor(colours.get("gold"));
+			g2.setStroke(new BasicStroke(4));
+		} else if (TwoFactor.edgeSet != null && 
+			TwoFactor.edgeSet.contains(e)) {
+			g2.setColor(colours.get("darkGreen"));
+			g2.setStroke(new BasicStroke(2));
+		} else {
+			g2.setColor(colours.get("default"));
+			g2.setStroke(new BasicStroke(1));
+		}
+
+		Iterator<Point> i = e.iterator();
+		Point u = i.next();
+		Point v = i.next();
+		g2.drawLine(
+			(int) Math.round(u.x), 
+			(int) Math.round(u.y), 
+			(int) Math.round(v.x), 
+			(int) Math.round(v.y)
+		);
 	}
 
 	private void drawHelp(Graphics2D g2) {
@@ -353,16 +401,22 @@ public class Canvass extends JPanel {
 		labels.add("algorithm"); 			vals.add(Core.getAlgAsString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
 		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
-		if (Core.problem == Problem.CONVEX_HULL) {
-			labels.add("problem size");	vals.add(((Integer) HullBase.points.size()).toString());
-		} else {
-			labels.add("connection f(x)");vals.add("function");
-			labels.add("vertex count");	vals.add("vertices");
-			labels.add("edge count");		vals.add("edges");
-			labels.add("graph density");	vals.add(String.format("%.02f", Core.density));
 
+		if (Core.isCH()) {
+			labels.add("problem size");
+			vals.add(((Integer) HullBase.points.size()).toString());
+			labels.add("solution size");
+			vals.add(((Integer) HullBase.hull.size()).toString());
+		} else {
+			labels.add("vertex count");
+			vals.add(((Integer) CoverBase.graph.vertices.size()).toString());
+			labels.add("edge count");
+			vals.add("edges");
+			labels.add("graph density");
+			vals.add(String.format("%.02f", Core.density));
+			labels.add("solution size");
+			vals.add(((Integer) CoverBase.cover.size()).toString());
 		}
-		labels.add("solution size");		vals.add(((Integer) HullBase.hull.size()).toString());
 		labels.add("generation size");	vals.add(((Integer) Core.genSize).toString());
 
 		int height = LINE_HEIGHT * labels.size();

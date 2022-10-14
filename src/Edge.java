@@ -38,6 +38,14 @@ public class Edge extends HashSet<Point> {
 		return false;
 	}
 
+	public boolean containsAny(HashSet<Point> hs) {
+		Iterator<Point> i = hs.iterator();
+		while (i.hasNext()) {
+			if (contains(i.next())) return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Returns a string representation of the Edge
 	 */

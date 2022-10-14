@@ -1,7 +1,8 @@
 package enums;
 public enum VcAlg {
 	BRUTE_FORCE,
-	TWO_FACTOR_APPROXIMATION {
+	TWO_FACTOR_APPROXIMATION,
+	REMOVE_ONE_BY_ONE {
 			@Override
 			public VcAlg next() {
 					return BRUTE_FORCE;
@@ -9,7 +10,7 @@ public enum VcAlg {
 	};
 
 	public VcAlg next() {
-		return TWO_FACTOR_APPROXIMATION;
+		return values()[ordinal() + 1];
 	}
 
 	@Override
