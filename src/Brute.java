@@ -13,9 +13,4 @@ public class Brute extends CoverBase {
 	static ArrayList<ArrayList<Point>> subsets(ArrayList<Point> vertices) {
 		return null;
 	}
-
-	static boolean isCover(ArrayList<Point> vertices) {
-
-		return false;
-	}
 }
