@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Scanner;
 import enums.*;
 
@@ -24,43 +25,20 @@ public class Core {
 
 	public static void main(String[] args) {
 		getParams();
-		if (isAuto()) auto();
+		if (isAuto()) {
+			dataWriteHeader();
+			
+		}
 		else makeCanvass();
 	}
 
 	/**
-	 * conducts an automated run of both algorithms
+	 * generates problem of specified {@code size}.
+	 * times one run of solve(). results printed and
+	 * written to performance.csv
+	 * @param size - the size of problem to be generated
 	 */
-	public static void auto() {
-		// header
-		dataWrite("algorithm,generation style,");
-		if (isCH()) dataWrite("problem size,");
-		else dataWrite("vertex count,edge count,");
-		dataWrite("solution size,duration (s)\n");
-
-		ArrayList<ChAlg> algs = new ArrayList<ChAlg>(EnumSet.allOf(ChAlg.class));
-		ArrayList<GenFx> styles = new ArrayList<GenFx>(
-			EnumSet.allOf(GenFx.class)
-		);
-		
-		for (int size = 4; size < genSize; size *= 2) {
-			for (GenFx s : styles) {
-				genFx = s;
-				for (ChAlg a : algs) {
-					chAlg = a;
-						test(size);
-				}
-			}
-		}
-	}
-
-	/**
-	 * tests Core's current algorithm up to genSize.
-	 * puts together results in res variable.
-	 * @param res
-	 * @return the testing duration results in csv format
-	 */
-	public static void test(int size) {
+	public static void timedTest(int size) {
 		Generator.generatePoints(size);
 		long startTime = System.currentTimeMillis();
 		solve();
@@ -89,7 +67,7 @@ public class Core {
 		} else {
 			switch (vcAlg) {
 				case EXACT_EXHAUSTIVE: Exact.exhaustive(); break;
-				case EXACT_INCREASING_ORDER: Exact.exhaustive(); break;
+				case EXACT_INCREASING_SIZE: Exact.increasingSize(); break;
 				case APPROXIMATION_ONE_BY_ONE: Approximation.oneByOne(); break;
 				case APPROXIMATION_TWO_FACTOR: Approximation.twoFactor(); break;
 			}
@@ -113,96 +91,7 @@ public class Core {
 		}
 	}
 	
-	// helpers //
-	private static String dataPieces(double duration) {
-		if (isCH()) {
-			return chAlg + "," + genFx + "," + HullBase.points.size() + "," + 
-			HullBase.hull.size() + "," + duration + "\n";
-		} else if (!isCH()) {
-			return vcAlg + "," + genFx + "," + "vertex count, edge count" + "," + 
-			"solution size" + "," + duration + "\n";
-		} else return "";
-	}
-	private static void dataWrite(String data, String file) {
-		try {
-			FileWriter fw = new FileWriter(file, true);
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(data);
-			bw.flush();
-			bw.close();
-		} catch (IOException e) { e.printStackTrace(); }
-	}
-	private static void dataWrite(String data) {
-		dataWrite(data, "performance.csv");
-	}
-
-	public static void nextAlg() {
-		if (isCH()) {
-			chAlg = chAlg.next();
-		} else if (problem == Problem.MINIMUM_VERTEX_COVER) {
-			vcAlg = vcAlg.next();
-		}
-	}
-
-	public static String getAlgAsString() {
-		if (isCH()) {
-			return chAlg.toString();
-		} else if (problem == Problem.MINIMUM_VERTEX_COVER) {
-			return vcAlg.toString();
-		} else {
-			return "None";
-		}
-	}
-
-	/**
-	 * Adds a point when user interacts with UI.
-	 * Unsolves problem.
-	 * @param p
-	 */
-	static void addPointManually(Point p) {
-		if (isCH()) HullBase.points.add(p);
-		else if (!isCH()) CoverBase.graph.vertices.add(p);
-		unsolve();
-	}
 	
-	/**
-	 * Removes a point from the problem.
-	 * Makes unsolved.
-	 * @param p
-	 */
-	static void removePointManually(Point p) {
-		if (isCH()) HullBase.points.remove(p);
-		else if (!isCH()) CoverBase.graph.vertices.remove(p);
-		unsolve();
-	}
-
-	/**
-	 * Resets the problem.
-	 */
-	public static void reset() {
-		unsolve();
-		if (isCH()) HullBase.points.clear();
-		else if (!isCH()) {
-			CoverBase.graph.vertices.clear();
-			CoverBase.graph.edges.clear();
-		}
-		canvass.reset();
-	}
-	
-	public static void densityUp() {
-		if (densityEnds()) density += 0.01;
-		else density += 0.1;
-
-		if (density > 1) density = 1;
-	}
-
-	public static void densityDown() {
-		if (densityEnds()) density -= 0.01;
-		else density -= 0.1;
-
-		if (density < 0) density = 0;
-	}
-
 	/**
 	 * gets our gui to repaint if in visual mode
 	 */
@@ -246,7 +135,139 @@ public class Core {
 		});
 	}
 
+	// helpers //
+	private static void dataWriteHeader() {
+		dataWrite("algorithm,generation style,");
+		if (isCH()) dataWrite("point count,hull size,");
+		else dataWrite("vertex count,edge count,density,cover size,");
+		dataWrite("duration (s)\n");
+	}
+	
+	private static String dataPieces(double duration) {
+		if (isCH()) {
+			return String.join(",", 
+				chAlg.toString(),
+				genFx.toString(),
+				HullBase.pointCount(),
+				HullBase.hullSize(),
+				duration + "\n"
+			);
+		} else if (!isCH()) {
+			return String.join(",", 
+				vcAlg.toString(),
+				genFx.toString(),
+				CoverBase.vertexCount(),
+				CoverBase.edgeCount(),
+				CoverBase.graphDensity(),
+				CoverBase.coverSize(),
+				duration + "\n"
+			);
+		} else return "";
+	}
+	
+	/**
+	 * writes specified data to the performance.csv file
+	 * @param data - data to be written
+	 */
+	private static void dataWrite(String data) {
+		try {
+			FileWriter fw = new FileWriter("performance.csv", true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(data);
+			bw.flush();
+			bw.close();
+		} catch (IOException e) { e.printStackTrace(); }
+	}
+
+	/**
+	 * advances Core.vcAlg or Core.chAlg
+	 * to the next algorithm
+	 */ 
+	public static void nextAlg() {
+		if (isCH()) {
+			chAlg = chAlg.next();
+		} else if (problem == Problem.MINIMUM_VERTEX_COVER) {
+			vcAlg = vcAlg.next();
+		}
+	}
+
+	/**
+	 * returns the current algorithms being used by 
+	 * Core as a String
+	 * @return
+	 */
+	public static String getAlgAsString() {
+		if (isCH()) {
+			return chAlg.toString();
+		} else if (problem == Problem.MINIMUM_VERTEX_COVER) {
+			return vcAlg.toString();
+		} else {
+			return "None";
+		}
+	}
+
+	/**
+	 * Adds a point when user interacts with UI.
+	 * Unsolves problem.
+	 * @param p
+	 */
+	static void addPointManually(Point p) {
+		if (isCH()) HullBase.points.add(p);
+		else if (!isCH()) {
+			CoverBase.vertices.add(p);
+		}
+		unsolve();
+	}
+	
+	/**
+	 * Removes a point from the problem.
+	 * Makes unsolved.
+	 * @param p
+	 */
+	static void removePointManually(Point p) {
+		if (isCH()) HullBase.points.remove(p);
+		else if (!isCH()) {
+			CoverBase.vertices.remove(p);
+			HashSet<Point> hs = new HashSet<Point>();
+			hs.add(p);
+			CoverBase.removeIncidentEdges(hs, CoverBase.edges);
+		}
+		unsolve();
+	}
+
+	/**
+	 * Resets the problem.
+	 */
+	public static void reset() {
+		unsolve();
+		if (isCH()) HullBase.points.clear();
+		else if (!isCH()) {
+			CoverBase.vertices.clear();
+			CoverBase.edges.clear();
+		}
+		canvass.reset();
+	}
+	
+	public static void densityUp() {
+		if (densityEnds()) density += 0.01;
+		else density += 0.1;
+
+		if (density > 1) density = 1;
+	}
+
+	public static void densityDown() {
+		if (densityEnds()) density -= 0.01;
+		else density -= 0.1;
+
+		if (density < 0) density = 0;
+	}
+
+	public static String getDensityAsString() {
+		return String.format("%.02f", density);
+	}
+
+
 	public static boolean isAuto() { return mode == Mode.AUTO; }
 	public static boolean isCH() { return problem == Problem.CONVEX_HULL; }
-	public static boolean densityEnds() { return density <= 0.1 || density >= 0.9; }
+	public static boolean densityEnds() { return density <= 0.1001 || density >= 0.8999; }
 }

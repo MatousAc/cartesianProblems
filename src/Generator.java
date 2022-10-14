@@ -14,7 +14,7 @@ public class Generator {
 	public static void generatePoints(int n) {
 		Core.unsolve();
 		ArrayList<Point> dest;
-		dest = (Core.isCH()) ? HullBase.points: CoverBase.graph.vertices;
+		dest = (Core.isCH()) ? HullBase.points: CoverBase.vertices;
 		
 		if (!Core.isAuto() && Core.genFx == GenFx.RADIAL) {
 			radialScreen(n, dest);
@@ -31,7 +31,7 @@ public class Generator {
 		}
 
 		if (!Core.isCH()) {
-			genEdges(CoverBase.graph);
+			genEdges(CoverBase.vertices, CoverBase.edges);
 		}
 	}
 
@@ -113,13 +113,12 @@ public class Generator {
 		}
 	}
 
-	public static void genEdges(Graph graph) {
-		ArrayList<Point> vertices = graph.vertices;
-		Iterator<Point> i = vertices.iterator(),  j = vertices.iterator();
+	public static void genEdges(ArrayList<Point> vertices, ArrayList<Edge> edges) {
+		edges.clear(); // first we want to wipe away any past edges
 		for (Point u : vertices) {
 			for (Point v : vertices) {
 				if (u != v && rand.nextDouble() <= Core.density) {
-					graph.edges.add(new Edge(u, v));
+					edges.add(new Edge(u, v));
 				}
 			}
 		}

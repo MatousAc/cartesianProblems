@@ -25,7 +25,7 @@ public class Canvass extends JPanel {
 		if (Core.isCH()) {
 			points = HullBase.points;
 		} else {
-			points = CoverBase.graph.vertices;
+			points = CoverBase.vertices;
 		}
 		// design
 		setBackground(Color.WHITE);
@@ -205,7 +205,7 @@ public class Canvass extends JPanel {
 			points = HullBase.points;
 			paintCH(g2);
 		} else if (!Core.isCH()) {
-			points = CoverBase.graph.vertices;
+			points = CoverBase.vertices;
 			paintVC(g2);
 		}
 		
@@ -266,7 +266,7 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawEdges(Graphics2D g2) {
-		for (Edge edge : CoverBase.graph.edges) {
+		for (Edge edge : CoverBase.edges) {
 			drawEdge(g2, edge);
 		}
 	}
@@ -356,6 +356,9 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawEdge(Graphics2D g2, Edge e) {
+		Iterator<Point> i = e.iterator();
+		Point u = i.next();
+		Point v = i.next();
 		if (e == Approximation.curEdge) {
 			g2.setColor(colours.get("red"));
 			g2.setStroke(new BasicStroke(4));
@@ -366,14 +369,15 @@ public class Canvass extends JPanel {
 			Approximation.edgeSet.contains(e)) {
 			g2.setColor(colours.get("darkGreen"));
 			g2.setStroke(new BasicStroke(3));
+		} else if ( CoverBase.cover != null &&
+			(CoverBase.cover.contains(u) || CoverBase.cover.contains(v))) {
+			g2.setColor(colours.get("lightGreen"));
+			g2.setStroke(new BasicStroke(2));			
 		} else {
 			g2.setColor(colours.get("default"));
 			g2.setStroke(new BasicStroke(1));
 		}
 
-		Iterator<Point> i = e.iterator();
-		Point u = i.next();
-		Point v = i.next();
 		g2.drawLine(
 			(int) Math.round(u.x), 
 			(int) Math.round(u.y), 
@@ -383,8 +387,8 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawHelp(Graphics2D g2) {
-		ArrayList<String> keys = new ArrayList<>();
-		ArrayList<String> cmds = new ArrayList<>();
+		ArrayList<String> keys = new ArrayList<String>();
+		ArrayList<String> cmds = new ArrayList<String>();
 		keys.add("Key"); 		cmds.add("Command");
 		keys.add("=======");	cmds.add("=============================");
 		keys.add("G"); 			cmds.add("generate N points");
@@ -395,7 +399,7 @@ public class Canvass extends JPanel {
 		keys.add("up/down");	cmds.add("increase/decrease speed");
 		keys.add("+/-"); 		cmds.add("increase/decrease generation size");
 		keys.add("I/D"); 		cmds.add("increase/decrease graph density");
-		keys.add("T"); 			cmds.add("toggle algorithm");
+		keys.add("A"); 			cmds.add("toggle algorithm");
 		keys.add("F"); 			cmds.add("toggle generation function");
 
 		for (int i = 0; i < keys.size(); i++) {
@@ -405,36 +409,31 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawInfo(Graphics2D g2) {
-		ArrayList<String> labels = new ArrayList<>();
-		ArrayList<String> vals = new ArrayList<>();
+		ArrayList<String> labels = new ArrayList<String>();
+		ArrayList<String> vals = new ArrayList<String>();
 		labels.add("Information"); 		vals.add("Value");
-		labels.add("==========="); 		vals.add("==========");
+		labels.add("===============");	vals.add("==========");
 		labels.add("problem");					vals.add(Core.problem.toString());
 		labels.add("algorithm"); 			vals.add(Core.getAlgAsString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
 		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
 
 		if (Core.isCH()) {
-			labels.add("problem size");
-			vals.add(((Integer) HullBase.points.size()).toString());
-			labels.add("solution size");
-			vals.add(((Integer) HullBase.hull.size()).toString());
+		labels.add("point count"); 		vals.add(HullBase.pointCount());
+		labels.add("hull size"); 			vals.add(HullBase.hullSize());
 		} else {
-			labels.add("vertex count");
-			vals.add(((Integer) CoverBase.graph.vertices.size()).toString());
-			labels.add("edge count");
-			vals.add("edges");
-			labels.add("graph density");
-			vals.add(String.format("%.02f", Core.density));
-			labels.add("solution size");
-			vals.add(((Integer) CoverBase.cover.size()).toString());
+		labels.add("vertex count"); 		vals.add(CoverBase.vertexCount());
+		labels.add("edge count"); 			vals.add(CoverBase.edgeCount());
+		labels.add("cover size"); 			vals.add(CoverBase.coverSize());
+		labels.add("generation density");
+		vals.add(Core.getDensityAsString());
 		}
 		labels.add("generation size");	vals.add(((Integer) Core.genSize).toString());
 
 		int height = LINE_HEIGHT * labels.size();
 		for (int i = 0; i < labels.size(); i++) {
 			g2.drawString(labels.get(i), 20, -height + i * LINE_HEIGHT);
-			g2.drawString(vals.get(i), 150, -height + i * LINE_HEIGHT);
+			g2.drawString(vals.get(i), 180, -height + i * LINE_HEIGHT);
 		}
 	}
 

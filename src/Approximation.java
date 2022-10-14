@@ -1,10 +1,8 @@
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 public class Approximation extends CoverBase {
 	static Set<Edge> edgeSet;
-	static Edge rmEdge;
 
 	/**
 	 * approximates the minimal vertex cover. it is 
@@ -13,7 +11,7 @@ public class Approximation extends CoverBase {
 	 * brute force method
 	 */
 	public static void twoFactor() {
-		edgeSet = new HashSet<Edge>(graph.edges);
+		edgeSet = new HashSet<Edge>(edges);
 
 		while (edgeSet.size() > 0) {
 			curEdge = Utility.randomSetElem(edgeSet);
@@ -30,7 +28,7 @@ public class Approximation extends CoverBase {
 	 * one vertex from the selected edge
 	 */
 	public static void oneByOne() {
-		edgeSet = new HashSet<Edge>(graph.edges);
+		edgeSet = new HashSet<Edge>(edges);
 
 		while (edgeSet.size() > 0) {
 			curEdge = Utility.randomSetElem(edgeSet);
@@ -45,20 +43,7 @@ public class Approximation extends CoverBase {
 		cleanup();
 	}
 
-	/**
-	 * removes any edges from edgeSet that are incident on the 
-	 * edge passed in. any edges connected to any of the vertices
-	 * on either end of Edge {u, v} will be removed from edgeSet
-	 * @param uv
-	 */
 	static void removeIncidentEdges(HashSet<Point> uv) {
-		newUV();
-		Iterator<Edge> i = edgeSet.iterator();
-		while (i.hasNext()) {
-			rmEdge = i.next();
-			if (rmEdge.containsAny(uv)) i.remove();
-			Core.show();
-		}
-		rmEdge = null;
+		removeIncidentEdges(uv, edgeSet);
 	}
 }
