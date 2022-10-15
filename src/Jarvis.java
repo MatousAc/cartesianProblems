@@ -2,9 +2,21 @@
 // https://bitbucket.org/StableSort/play/src/master/src/com/stablesort/convexhull/ConvexHullJarvisMarch.java
 import java.util.Iterator;
 
+/**
+ * Contains a solution to the convex hull problem. 
+ * Use {@code march()} method to solve.
+ * */
 public class Jarvis extends HullBase {
+	/** The point we currently think will be added to the hull next. */
 	protected static Point next;
-	
+	/**
+	 * Solves the convex hull problem in {@code HullBase.points}
+	 * in O(nh) time (h being the number of points in the hull). 
+	 * {@code march()} "walks" along the outer edge of the problem
+	 * scanning all points to continue to the point furthest 
+	 * counterclockwise. Once back at the starting point, the 
+	 * {@code march} is over.
+	 */
 	public static void march() {
 		start = findStartPoint(points);
 		

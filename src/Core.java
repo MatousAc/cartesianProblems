@@ -3,15 +3,13 @@ import javax.swing.SwingUtilities;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Scanner;
 import enums.*;
 
 public class Core {
 	// high level resources
-	// private static Core single_instance = null;
+	/** The GUI for visualizing the algorithms. */
 	protected static Canvass canvass;
 	static Mode mode;
 	static Problem problem;
@@ -27,7 +25,8 @@ public class Core {
 		getParams();
 		if (isAuto()) {
 			dataWriteHeader();
-			
+			if (isCH()) HullBase.test();
+			else CoverBase.test();
 		}
 		else makeCanvass();
 	}
@@ -75,24 +74,6 @@ public class Core {
 	}
 	
 	/**
-	 * resets problem solving progress
-	 */
-	static void unsolve() {
-		solved = false;
-		if (isCH()) {
-			HullBase.hull.clear();
-			HullBase.start = null;
-			HullBase.P = null;
-			HullBase.Q = null;
-			HullBase.R = null;
-		} else {
-			CoverBase.cover.clear();
-			Approximation.curEdge = null;
-		}
-	}
-	
-	
-	/**
 	 * gets our gui to repaint if in visual mode
 	 */
 	static void show() {
@@ -137,12 +118,23 @@ public class Core {
 
 	// helpers //
 	private static void dataWriteHeader() {
-		dataWrite("algorithm,generation style,");
-		if (isCH()) dataWrite("point count,hull size,");
-		else dataWrite("vertex count,edge count,density,cover size,");
-		dataWrite("duration (s)\n");
+		if (isCH()) {
+			dataWrite("algorithm,generation style," + 
+			"point count,hull size,duration (s)\n");
+		}
+		else {
+			dataWrite("algorithm,vertex count,edge count," + 
+			"density,cover size,duration (s)\n"
+		);}
 	}
 	
+	/**
+	 * Generates a string of information from the 
+	 * latest solve including algorithm, generation
+	 * f(x), solution size, problem size and others.
+	 * @param duration the time elapsed during the latest solve
+	 * @return string of comma-separated data
+	 */
 	private static String dataPieces(double duration) {
 		if (isCH()) {
 			return String.join(",", 
@@ -152,17 +144,16 @@ public class Core {
 				HullBase.hullSize(),
 				duration + "\n"
 			);
-		} else if (!isCH()) {
+		} else {
 			return String.join(",", 
 				vcAlg.toString(),
-				genFx.toString(),
 				CoverBase.vertexCount(),
 				CoverBase.edgeCount(),
 				CoverBase.graphDensity(),
 				CoverBase.coverSize(),
 				duration + "\n"
 			);
-		} else return "";
+		}
 	}
 	
 	/**
@@ -235,9 +226,21 @@ public class Core {
 		unsolve();
 	}
 
-	/**
-	 * Resets the problem.
-	 */
+		
+	/** Clears the solution and intermediate data for a problem. */
+	static void unsolve() {
+		if (isCH()) {
+			HullBase.hull.clear();
+			HullBase.cleanup();
+		} else {
+			CoverBase.cover.clear();
+			CoverBase.cleanup();
+		}
+		// leave here to undo cleanup()'s: solved = true;
+		solved = false;
+	}
+	
+	/** Deletes current problem. */
 	public static void reset() {
 		unsolve();
 		if (isCH()) HullBase.points.clear();
@@ -245,21 +248,25 @@ public class Core {
 			CoverBase.vertices.clear();
 			CoverBase.edges.clear();
 		}
-		canvass.reset();
+		show();
 	}
 	
 	public static void densityUp() {
-		if (densityEnds()) density += 0.01;
+		if (density < 0.1) density += 0.05;
+		else if (density >= 0.9) density += 0.05;
 		else density += 0.1;
 
 		if (density > 1) density = 1;
+		density = Math.round(density * 100) / 100.0;
 	}
 
 	public static void densityDown() {
-		if (densityEnds()) density -= 0.01;
+		if (density <= 0.1) density -= 0.05;
+		else if (density > 0.9) density -= 0.05;
 		else density -= 0.1;
 
 		if (density < 0) density = 0;
+		density = Math.round(density * 100) / 100.0;
 	}
 
 	public static String getDensityAsString() {
@@ -269,5 +276,5 @@ public class Core {
 
 	public static boolean isAuto() { return mode == Mode.AUTO; }
 	public static boolean isCH() { return problem == Problem.CONVEX_HULL; }
-	public static boolean densityEnds() { return density <= 0.1001 || density >= 0.8999; }
+	public static boolean densityEnds() { return density <= 0.1 || density >= 0.9; }
 }
