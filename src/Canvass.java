@@ -83,7 +83,7 @@ public class Canvass extends JPanel {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_G: 
-					Generator.generatePoints(); break;
+					Generator.generateProblem(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
 					new Thread(() -> Core.solve()).start(); break;

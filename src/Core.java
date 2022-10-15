@@ -3,6 +3,7 @@ import javax.swing.SwingUtilities;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashSet;
 import java.util.Scanner;
 import enums.*;
@@ -38,15 +39,13 @@ public class Core {
 	 * @param size - the size of problem to be generated
 	 */
 	public static void timedTest(int size) {
-		Generator.generatePoints(size);
-		long startTime = System.currentTimeMillis();
+		long startTime = System.nanoTime();
 		solve();
-		long endTime = System.currentTimeMillis();
-		double duration = (endTime - startTime) / 1000.0;
+		long endTime = System.nanoTime();
+		Double duration = (endTime - startTime) / 1000000000.0;
 		String data = dataPieces(duration);
 		dataWrite(data);
 		System.out.print(data);
-		reset();
 	}
 
 	/**
@@ -135,14 +134,17 @@ public class Core {
 	 * @param duration the time elapsed during the latest solve
 	 * @return string of comma-separated data
 	 */
-	private static String dataPieces(double duration) {
+	private static String dataPieces(Double duration) {
+		DecimalFormat df = new DecimalFormat("#.#");
+    df.setMaximumFractionDigits(10);
+
 		if (isCH()) {
 			return String.join(",", 
 				chAlg.toString(),
 				genFx.toString(),
 				HullBase.pointCount(),
 				HullBase.hullSize(),
-				duration + "\n"
+				df.format(duration), "\n"
 			);
 		} else {
 			return String.join(",", 
@@ -151,7 +153,7 @@ public class Core {
 				CoverBase.edgeCount(),
 				CoverBase.graphDensity(),
 				CoverBase.coverSize(),
-				duration + "\n"
+				df.format(duration), "\n"
 			);
 		}
 	}

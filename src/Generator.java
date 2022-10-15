@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
 import enums.*;
 
@@ -11,7 +10,7 @@ public class Generator {
 	 * or circular pattern. restricts it to the
 	 * screen size when in visual mode.
 	 */
-	public static void generatePoints(int n) {
+	public static void generateProblem(int n) {
 		Core.unsolve();
 		ArrayList<Point> dest;
 		dest = (Core.isCH()) ? HullBase.points: CoverBase.vertices;
@@ -35,7 +34,7 @@ public class Generator {
 		}
 	}
 
-	public static void generatePoints() { generatePoints(Core.genSize); }
+	public static void generateProblem() { generateProblem(Core.genSize); }
 
 	public static void radialScreen(int n, ArrayList<Point> dest) {
 		Canvass c = Core.canvass;

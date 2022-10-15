@@ -39,10 +39,12 @@ public class HullBase {
 		for (int size = 4; size < Core.genSize; size *= 2) {
 			for (GenFx s : styles) {
 				Core.genFx = s;
+				Generator.generateProblem(size);
 				for (ChAlg a : algs) {
 					Core.chAlg = a;
-						Core.timedTest(size);
+					Core.timedTest(size);
 				}
+				Core.reset();
 			}
 		}
 	}

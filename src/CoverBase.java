@@ -39,14 +39,16 @@ public class CoverBase {
 		ArrayList<VcAlg> algs = new ArrayList<VcAlg>(EnumSet.allOf(VcAlg.class));
 		Core.genFx = GenFx.RECTANGULAR;
 		
-		for (int size = 2; size < Core.genSize; size++) {
+		for (int size = 2; size <= Core.genSize; size++) {
 			Core.density = 0;
 			while (Core.density < 1) {
 				Core.densityUp();
+				Generator.generateProblem(size);
 				for (VcAlg a : algs) {
 					Core.vcAlg = a;
 					Core.timedTest(size);
 				}
+				Core.reset();
 			}
 		}
 	}
