@@ -1,13 +1,14 @@
+package enums;
 public enum ChAlg {
 	JARVIS_MARCH,
 	GRAHAM_SCAN {
 			@Override
-			public ChAlg toggle() {
+			public ChAlg next() {
 					return JARVIS_MARCH;
 			};
 	};
 
-	public ChAlg toggle() {
+	public ChAlg next() {
 		return GRAHAM_SCAN;
 	}
 
