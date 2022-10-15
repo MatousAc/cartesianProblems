@@ -118,9 +118,13 @@ public class Generator {
 		for (Point u : vertices) {
 			for (Point v : vertices) {
 				if (u != v && rand.nextDouble() <= Core.density) {
-					edges.add(new Edge(u, v));
+					Edge newEdge = new Edge(u, v);
+					if (!Utility.containsDeep(edges, newEdge)) {
+						edges.add(newEdge);
+					}
 				}
 			}
 		}
 	}
+
 }
