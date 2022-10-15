@@ -1,73 +1,133 @@
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import enums.*;
 
+/** Base class for a minimum vertex cover solver or approximator. */
 public class CoverBase {
+	/** The list of vertices V in graph {V, E}. */
 	static ArrayList<Point> vertices = new ArrayList<Point>();
+	/** The list of edges E in graph {V, E}. */
 	static ArrayList<Edge> edges = new ArrayList<Edge>();
+	/**
+	 * A list of vertices that cover the graph 
+	 * {{@code vertices}, {@code edges}}. At the end of a 
+	 * minimum vertex cover algorithm, this list is the minimum
+	 * vertex cover of the graph or an approximation of it.
+	 */
 	static ArrayList<Point> cover = new ArrayList<Point>();
+	/** Edge of current interest in a minimum vertex cover algorithm. */
 	static Edge curEdge;
+	/** An edge that is being removed in some way from the graph. */
 	static Edge rmEdge;
+	/** A point of interest in a minimum vertex cover algorithm. */
 	static Point u;
+	/** A point of interest in a minimum vertex cover algorithm. */
 	static Point v;
 
-		/**
-	 * removes any edges from edgeSet that are incident on the 
-	 * HashSet passed in. any edges connected to any of the vertices
-	 * specified will be removed from edges.
-	 * @param uv
+	/**
+	 * Conducts an automated test of all algorithms that
+	 * can be used to solve the minimum vertex cover 
+	 * problem. The size of the problem increases by one
+	 * for each iteration and densities from 0-1 are tried
+	 * for each. Every size-density combination cycles through
+	 * every VcAlg algorithm.
+	 */
+	protected static void test() {
+		ArrayList<VcAlg> algs = new ArrayList<VcAlg>(EnumSet.allOf(VcAlg.class));
+		Core.genFx = GenFx.RECTANGULAR;
+		
+		for (int size = 2; size < Core.genSize; size++) {
+			Core.density = 0;
+			while (Core.density < 1) {
+				Core.densityUp();
+				for (VcAlg a : algs) {
+					Core.vcAlg = a;
+					Core.timedTest(size);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Removes any edges from {@code rmFrom} that are 
+	 * incident on the {@code HashSet<Point> uv} passed in.
+	 * @param hs
 	 * @param rmFrom
 	 */
-	static void removeIncidentEdges(HashSet<Point> uv, Collection<Edge> rmFrom) {
+	static void removeIncidentEdges(HashSet<Point> hs, Collection<Edge> rmFrom) {
 		newUV();
 		Iterator<Edge> i = rmFrom.iterator();
 		while (i.hasNext()) {
 			rmEdge = i.next();
-			if (rmEdge.containsAny(uv)) i.remove();
+			if (rmEdge.containsAny(hs)) i.remove();
 			Core.show();
 		}
 		rmEdge = null;
 	}
 	
-	static boolean isCover(ArrayList<Point> cover) {
+	/**
+	 * Determines if the candidate subset covers all edges
+	 * in {@code CoverBase.edges}
+	 * @param candidate
+	 * @return {@code true} if candidate covers. otherwise {@code false} 
+	 */
+	static boolean isCover(ArrayList<Point> candidate) {
 		for (Edge edge : edges) {
 			curEdge = edge;
-			Core.show();
-			newUV();
-			if (!(cover.contains(u) || cover.contains(v))) {
+			newUV(); Core.show();
+			if (!(candidate.contains(u) || candidate.contains(v))) {
 				return false;
 			}
 		}
 		return true;
 	}
 
+	/** Assigns points from curEdge into {@code CoverBase.u} and {@code CoverBase.v} */
 	static void newUV() {
+		if (curEdge == null) return;
 		Iterator<Point> i = curEdge.iterator();
 		u = i.next();
 		v = i.next();
 	}
 
+	/**
+	 * Cleans up the {@code CoverBase}'s intermediate data 
+	 * structures once the minimum vertex cover (or
+	 * its approximation) is found.
+	 */
 	static void cleanup() {
+		Core.solved = false;
 		curEdge = null;
-		u = null; v = null;
+		rmEdge = null;
+		u = null;
+		v = null;
 		Core.show();
 	}
 
-	// helpers
+	// helper f(x)s
+	/** @return the size of  {@code CoverBase.vertices} as a String. */
 	public static String vertexCount() {
 		return ((Integer) vertices.size()).toString();
 	}
+	/** @return the size of  {@code CoverBase.edges} as a String. */
 	public static String edgeCount() {
 		return ((Integer) edges.size()).toString();
 	}
+	/** Returns the size of  {@code CoverBase.cover} as a String. */
 	public static String coverSize() {
 		return ((Integer) cover.size()).toString();
 	}
+	/** @return the density of the graph represented by of 
+	 * {@code CoverBase.vertices} and 
+	 * {@code CoverBase.edges} as a {@code String}.
+	 */
 	public static String graphDensity() {
 		int v = vertices.size();
 		int e = edges.size();
-		double density = v*(v - 1)/e;
+		double density = (double) e / (v * (v - 1) / 2);
 		return String.format("%.04f", density);
 	}
 }

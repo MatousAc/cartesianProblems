@@ -17,6 +17,16 @@ public class Utility {
     }
     return clone;
 	}
+
+	public static boolean containsDeep(ArrayList<Edge> edges, Edge newEdge) {
+		for (Edge edge : edges) {
+			if (newEdge.equals(edge)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * determines whether the ArrayList of Points contains duplicates
 	 * @param points
