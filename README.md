@@ -15,7 +15,15 @@ Select Mode (visual|auto): a
 Select Problem (convex hull|minimum vertex cover): v
 Enter max problem size: 20
 ~~~
-In automatic mode, this will start spitting out data to the screen and to `performance.csv`. In visual mode, a new window should be opened up from which you can generate and solve problems.
+In automatic mode, this will start spitting out data to the screen and to `performance.csv`. 
+
+~~~
+C:\...\cartesianProblems> cmd /C <java.exe location> -cp C:\...\cartesianProblems\bin Core
+Select Mode (visual|auto): v
+Select Problem (convex hull|minimum vertex cover): c
+Enter max problem size: 400
+~~~
+In visual mode, a new window should be opened up from which you can generate and solve problems.
 ![Graham Scan algorithms solving the convex hull problem.](./grahamScan.png)
 ![A type of exhaustive search algorithm solving the minimum vertex cover problem.](./exactIncreasingSize.png)
 
