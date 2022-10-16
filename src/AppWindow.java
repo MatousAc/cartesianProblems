@@ -1,5 +1,5 @@
+// Code in AppWindow.java is based on previous code by Richard Halterman PhD.
 import javax.swing.*;
-
 /**
  * A convenience superclass for creating simple graphical apps.
  */
