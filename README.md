@@ -10,14 +10,14 @@ In **automatic mode**, the program gradually increases size and varies other hyp
 # How to run
 `main` is located in Core.java, so run that file. Next, select program mode, problem and problem size. The first letter of each option will suffice. In automatic mode, the following selections will start spitting out data to the screen and to `performance.csv`. 
 ~~~
-C:\...\cartesianProblems> cmd /C <java.exe location> -cp C:\...\cartesianProblems\bin Core
+C:\...\cartesianProblems> cd "...\cartesianProblems\src\" && javac Core.java && java Core
 Select Mode (visual|auto): a
 Select Problem (convex hull|minimum vertex cover): v
 Enter max problem size: 20
 ~~~
 In visual mode, a new window should be opened up from which you can generate and solve problems.
 ~~~
-C:\...\cartesianProblems> cmd /C <java.exe location> -cp C:\...\cartesianProblems\bin Core
+C:\...\cartesianProblems>cd "...\cartesianProblems\src\" && javac Core.java && java Core
 Select Mode (visual|auto): v
 Select Problem (convex hull|minimum vertex cover): c
 Enter max problem size: 50
