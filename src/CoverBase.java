@@ -39,14 +39,25 @@ public class CoverBase {
 		ArrayList<VcAlg> algs = new ArrayList<VcAlg>(EnumSet.allOf(VcAlg.class));
 		Core.genFx = GenFx.RECTANGULAR;
 		
-		for (int size = 2; size <= Core.genSize; size++) {
-			Core.density = 0;
-			while (Core.density < 1) {
-				Core.densityUp();
-				Generator.generateProblem(size);
+		for (int n = 2; n <= Core.maxSize; n++) {
+			Generator.density = 0;
+			Generator.N = n;
+			while (Generator.density < 1) {
+				Generator.densityUp();
+				Generator.generateProblem();
 				for (VcAlg a : algs) {
 					Core.vcAlg = a;
-					Core.timedTest(size);
+					try {
+						Core.timedTest(n);
+					} catch (OutOfMemoryError e) {
+						System.out.printf(
+							"Ran out of memory while using %s to solve a " + 
+							"graph with %d vertices at %s density.\n", 
+							Core.vcAlg.toString(),
+							vertices.size(), 
+							graphDensity()
+						);
+					}
 				}
 				Core.reset();
 			}

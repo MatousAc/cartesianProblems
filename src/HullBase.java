@@ -36,13 +36,14 @@ public class HullBase {
 			EnumSet.allOf(GenFx.class)
 		);
 		
-		for (int size = 4; size < Core.genSize; size *= 2) {
+		for (int n = 4; n < Core.maxSize; n *= 2) {
+			Generator.N = n;
 			for (GenFx s : styles) {
 				Core.genFx = s;
-				Generator.generateProblem(size);
+				Generator.generateProblem();
 				for (ChAlg a : algs) {
 					Core.chAlg = a;
-					Core.timedTest(size);
+					Core.timedTest(n);
 				}
 				Core.reset();
 			}

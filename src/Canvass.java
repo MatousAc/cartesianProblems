@@ -99,8 +99,8 @@ public class Canvass extends JPanel {
 					selectedPoint = null;
 					break;
 				case KeyEvent.VK_PLUS:
-				case KeyEvent.VK_EQUALS: Core.genSize++; break;
-				case KeyEvent.VK_MINUS: Core.genSize--; break;
+				case KeyEvent.VK_EQUALS: Generator.N++; break;
+				case KeyEvent.VK_MINUS: Generator.N--; break;
 				case KeyEvent.VK_UP:
 					Core.speed = Core.speed.increase(); break;
 				case KeyEvent.VK_DOWN:
@@ -108,9 +108,9 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_P:
 					Core.problem = Core.problem.next(); break;
 				case KeyEvent.VK_I:
-					Core.densityUp(); break;
+					Generator.densityUp(); break;
 				case KeyEvent.VK_D:
-					Core.densityDown(); break;
+					Generator.densityDown(); break;
 					case KeyEvent.VK_A: Core.nextAlg(); break;
 				case KeyEvent.VK_F:
 					Core.genFx = Core.genFx.next(); break;
@@ -424,9 +424,9 @@ public class Canvass extends JPanel {
 		labels.add("edge count"); 			vals.add(CoverBase.edgeCount());
 		labels.add("cover size"); 			vals.add(CoverBase.coverSize());
 		labels.add("generation density");
-		vals.add(Core.getDensityAsString());
+		vals.add(Generator.getDensityAsString());
 		}
-		labels.add("generation size");	vals.add(((Integer) Core.genSize).toString());
+		labels.add("generation size");	vals.add(((Integer) Generator.N).toString());
 
 		int height = LINE_HEIGHT * labels.size();
 		for (int i = 0; i < labels.size(); i++) {

@@ -18,8 +18,7 @@ public class Core {
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
 	static VcAlg vcAlg = VcAlg.EXACT_EXHAUSTIVE;
 	static GenFx genFx = GenFx.RADIAL;
-	static int genSize = 0;
-	static double density = 0.1;
+	static int maxSize = 0;
 	static boolean solved = false;
 
 	public static void main(String[] args) {
@@ -33,10 +32,9 @@ public class Core {
 	}
 
 	/**
-	 * generates problem of specified {@code size}.
-	 * times one run of solve(). results printed and
+	 * Generates problem of size {@code Generator.N}.
+	 * Times one run of solve(). Results printed and
 	 * written to performance.csv
-	 * @param size - the size of problem to be generated
 	 */
 	public static void timedTest(int size) {
 		long startTime = System.nanoTime();
@@ -83,25 +81,31 @@ public class Core {
 
 	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
+		// choose mode
 		System.out.print("Select Mode (\033[4mv\033[0misual|\033[4ma\033[0muto): ");
 		switch (scan.next().toLowerCase()) {
 			case "v":
 			case "visual": mode = Mode.VISUAL; break;
 			default: mode = Mode.AUTO; break;
 		}
-
+		// choose problem
+		System.out.print(
+			"Select Problem (\033[4mc\033[0monvex hull|" + 
+			"minimum \033[4mv\033[0mertex cover): "
+		);
+		switch (scan.next().toLowerCase()) {
+			case "c":
+			case "convex hull": problem = Problem.CONVEX_HULL; break;
+			default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
+		}
+		// choose problem size
 		if (isAuto()) {
-			System.out.print("Select Problem (\033[4mc\033[0monvex hull|\033[4mm\033[0minimum \033[4mv\033[0mertex cover): ");
-			switch (scan.next().toLowerCase()) {
-				case "c":
-				case "convex hull": problem = Problem.CONVEX_HULL; break;
-				default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
-			}
-		}  else { problem = Problem.MINIMUM_VERTEX_COVER; }
-		
-		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size: ";
-		System.out.print(msg);
-		genSize = scan.nextInt();
+			System.out.print("Enter max problem size: ");
+			Core.maxSize = scan.nextInt();
+		} else {
+			System.out.print("Enter generation size: ");
+			Generator.N = scan.nextInt();
+		}
 		scan.close();
 	}
 
@@ -252,31 +256,7 @@ public class Core {
 		}
 		show();
 	}
-	
-	public static void densityUp() {
-		if (density < 0.1) density += 0.05;
-		else if (density >= 0.9) density += 0.05;
-		else density += 0.1;
-
-		if (density > 1) density = 1;
-		density = Math.round(density * 100) / 100.0;
-	}
-
-	public static void densityDown() {
-		if (density <= 0.1) density -= 0.05;
-		else if (density > 0.9) density -= 0.05;
-		else density -= 0.1;
-
-		if (density < 0) density = 0;
-		density = Math.round(density * 100) / 100.0;
-	}
-
-	public static String getDensityAsString() {
-		return String.format("%.02f", density);
-	}
-
 
 	public static boolean isAuto() { return mode == Mode.AUTO; }
 	public static boolean isCH() { return problem == Problem.CONVEX_HULL; }
-	public static boolean densityEnds() { return density <= 0.1 || density >= 0.9; }
 }

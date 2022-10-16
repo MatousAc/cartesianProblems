@@ -47,6 +47,10 @@ public class Exact extends CoverBase {
 	 * considers every possible subset of {@code Hullbase.vertices}
 	 * in order of increasing size. Thus, as soon as any cover 
 	 * is found, it is guaranteed to be the minimum.
+	 * Note: this particular algorithm has high space complexity,
+	 * so it will probably cause a Java heap error for graphs with 
+	 * more than 27 vertices. This is caught in automated testing 
+	 * mode but not in visual mode.
 	 */
 	public static void increasingSize() {
 		if  (edges.size() == 0) return;
