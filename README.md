@@ -1,7 +1,7 @@
 # Overview
 This Java program exists to implement and visualized algorithms that solve the **convex hull** and **minimum vertex cover** problems. There are visual and automatic modes.
 
-In **visual mode**, press `h` to view available all keyboard commands. Different problem generation functions and algorithms can be used. Solve speed can be increased and decreased as desired. 
+In **visual mode**, press `h` to view all available keyboard commands. Different problem generation functions and algorithms can be used. Solve speed can be increased and decreased as desired. 
 
 Starting more than one solve operation at a time is not allowed by the program. I'm sure it can be broken if you try hard enough though. 
 
