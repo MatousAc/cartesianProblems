@@ -26,6 +26,7 @@ Enter max problem size: 50
 ![A type of exhaustive search algorithm solving the minimum vertex cover problem.](./exactIncreasingSize.png)
 
 # Algorithms used
+(explanation and analysis to come)
 ## Convex Hull
 Two Algorithms were used.
 ## Minimum Vertex Cover
