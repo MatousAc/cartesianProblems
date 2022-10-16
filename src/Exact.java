@@ -23,7 +23,12 @@ public class Exact extends CoverBase {
 		for (int i = 1; i < cardinality; i++) {
 			for (int j = 0; j < n; j++) {
 				if ((i & (1 << j)) > 0) { //The j-th element is used
-					currentCover.add(vertices.get(j));
+					try{
+						currentCover.add(vertices.get(j));
+					} catch(Exception e){ 
+						System.out.println("Exhaustive search aborted.");
+						return;
+					}
 					Core.show();
 				}
 			}
