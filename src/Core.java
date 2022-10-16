@@ -19,7 +19,8 @@ public class Core {
 	static VcAlg vcAlg = VcAlg.EXACT_EXHAUSTIVE;
 	static GenFx genFx = GenFx.RADIAL;
 	static int maxSize = 0;
-	static boolean solved = false;
+	static boolean isSolving = false;
+	static boolean isSolved = false;
 
 	public static void main(String[] args) {
 		getParams();
@@ -50,24 +51,30 @@ public class Core {
 	 * Solves using specified algorithm, visibility, and speed
 	 */
 	public static void solve() {
+		isSolving = true;
 		unsolve();
 		if (isCH()) {
 			if (HullBase.points.size() < 3) {
-				System.out.print("convex hull impossible");
-				return;
-			}
-			switch (chAlg) {
+				System.out.println("Convex hull impossible. Solve Aborted.");
+			} else {
+				switch (chAlg) {
 				case JARVIS_MARCH: Jarvis.march(); break;
 				case GRAHAM_SCAN: Graham.scan(); break;
 			}
+		}
 		} else {
-			switch (vcAlg) {
+			if (CoverBase.vertices.size() == 0) {
+				System.out.println("No vertices. Solve aborted.");
+			} else {
+				switch (vcAlg) {
 				case EXACT_EXHAUSTIVE: Exact.exhaustive(); break;
 				case EXACT_INCREASING_SIZE: Exact.increasingSize(); break;
 				case APPROXIMATION_ONE_BY_ONE: Approximation.oneByOne(); break;
 				case APPROXIMATION_TWO_FACTOR: Approximation.twoFactor(); break;
+				}
 			}
 		}
+		isSolving = false;
 	}
 	
 	/**
@@ -235,19 +242,25 @@ public class Core {
 		
 	/** Clears the solution and intermediate data for a problem. */
 	static void unsolve() {
+		isSolved = false;
 		if (isCH()) {
 			HullBase.hull.clear();
-			HullBase.cleanup();
+			HullBase.start = null; // might not need these null assignments
+			HullBase.P = null;
+			HullBase.Q = null;
+			HullBase.R = null;
 		} else {
 			CoverBase.cover.clear();
-			CoverBase.cleanup();
+			CoverBase.curEdge = null;
+			CoverBase.rmEdge = null;
+			CoverBase.u = null;
+			CoverBase.v = null;
 		}
-		// leave here to undo cleanup()'s: solved = true;
-		solved = false;
 	}
 	
 	/** Deletes current problem. */
 	public static void reset() {
+		isSolving = false;
 		unsolve();
 		if (isCH()) HullBase.points.clear();
 		else if (!isCH()) {

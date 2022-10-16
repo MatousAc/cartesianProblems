@@ -78,7 +78,7 @@ public class HullBase {
 		P = null;
 		Q = null;
 		R = null;
-		Core.solved = true;
+		Core.isSolved = true;
 		Core.show();
 	}
 

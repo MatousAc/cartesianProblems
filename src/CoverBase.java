@@ -112,11 +112,11 @@ public class CoverBase {
 	 * its approximation) is found.
 	 */
 	static void cleanup() {
-		Core.solved = false;
 		curEdge = null;
 		rmEdge = null;
 		u = null;
 		v = null;
+		Core.isSolved = true;
 		Core.show();
 	}
 

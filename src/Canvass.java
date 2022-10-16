@@ -86,7 +86,12 @@ public class Canvass extends JPanel {
 					Generator.generateProblem(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
-					new Thread(() -> Core.solve()).start(); break;
+					if (!Core.isSolving) {
+						new Thread(() -> Core.solve()).start();
+					} else {
+						System.out.println("Already solving.");
+					}
+					break;
 				case KeyEvent.VK_C:
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
@@ -233,7 +238,7 @@ public class Canvass extends JPanel {
 	private void drawSpecialCH(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		if (Core.solved && Core.isCH()) {
+		if (Core.isSolved && Core.isCH()) {
 			drawLine(g2, HullBase.back(0), HullBase.hull.get(0));
 		}
 		if (Core.chAlg == ChAlg.JARVIS_MARCH) {
