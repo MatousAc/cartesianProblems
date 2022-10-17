@@ -69,6 +69,7 @@ public class Core {
 				switch (vcAlg) {
 				case EXACT_EXHAUSTIVE: Exact.exhaustive(); break;
 				case EXACT_INCREASING_SIZE: Exact.increasingSize(); break;
+				case EXACT_ALEX_OPTIMIZATION: Exact.alexOptimization(); break;
 				case APPROXIMATION_ONE_BY_ONE: Approximation.oneByOne(); break;
 				case APPROXIMATION_TWO_FACTOR: Approximation.twoFactor(); break;
 				}

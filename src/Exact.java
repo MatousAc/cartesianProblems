@@ -48,6 +48,47 @@ public class Exact extends CoverBase {
 	/**
 	 * Solves the minimum vertex cover problem in 
 	 * {@code CoverBase.vertices} and {@code CoverBase.edges}
+	 * in O(2^V*E) time. {@code exhaustive()} considers every
+	 * possible subset of {@code Hullbase.vertices} and finds
+	 * the smallest cover possible.
+	 */
+	public static void alexOptimization() {
+		if  (edges.size() == 0) return;
+		Approximation.oneByOne();
+		int upperBound = cover.size();
+		cover.clear();
+		cover = (ArrayList<Point>) vertices.clone();
+		int n = vertices.size();
+		int cardinality = (1 << n);
+		for (int i = 1; i < cardinality; i++) {
+			if (Integer.bitCount(i) > upperBound) continue;
+			for (int j = 0; j < n; j++) {
+				if ((i & (1 << j)) > 0) { //The j-th element is used
+					try {
+						currentCover.add(vertices.get(j));
+					} catch(Exception e){ 
+						System.out.println("Exhaustive search aborted.");
+						return;
+					}
+					Core.show();
+				}
+			}
+			Core.show();
+			if (currentCover.size() < cover.size() &&
+				isCover(currentCover)) {
+				cover = (ArrayList<Point>) currentCover.clone();
+				Core.show();
+			}
+			currentCover.clear();
+			curEdge = null;
+		}
+		currentCover.clear();
+		cleanup();
+	}
+
+	/**
+	 * Solves the minimum vertex cover problem in 
+	 * {@code CoverBase.vertices} and {@code CoverBase.edges}
 	 * in O(2^V*E) time (worst case). {@code exhaustive()} 
 	 * considers every possible subset of {@code Hullbase.vertices}
 	 * in order of increasing size. Thus, as soon as any cover 
