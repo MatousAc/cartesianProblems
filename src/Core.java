@@ -144,7 +144,7 @@ public class Core {
 				genFx.toString(),
 				HullBase.pointCount(),
 				HullBase.hullSize(),
-				df.format(duration), "\n"
+				df.format(duration) + "\n"
 			);
 		} else {
 			return String.join(",", 
@@ -153,7 +153,7 @@ public class Core {
 				CoverBase.edgeCount(),
 				CoverBase.graphDensity(),
 				CoverBase.coverSize(),
-				df.format(duration), "\n"
+				df.format(duration) + "\n"
 			);
 		}
 	}
