@@ -23,7 +23,7 @@ public class Exact extends CoverBase {
 		for (int i = 1; i < cardinality; i++) {
 			for (int j = 0; j < n; j++) {
 				if ((i & (1 << j)) > 0) { //The j-th element is used
-					try{
+					try {
 						currentCover.add(vertices.get(j));
 					} catch(Exception e){ 
 						System.out.println("Exhaustive search aborted.");
@@ -78,6 +78,7 @@ public class Exact extends CoverBase {
 
 	/**
 	 * Puts all subsets of size {@code k} in {@code result}.
+	 * Taken from https://stackoverflow.com/a/12548381/14062356
 	 * @param points - the complete set of point (as ArrayList)
 	 * @param k - the number of elements in the subsets
 	 * @param idx
