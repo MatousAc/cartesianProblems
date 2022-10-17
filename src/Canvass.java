@@ -86,7 +86,12 @@ public class Canvass extends JPanel {
 					Generator.generateProblem(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
-					new Thread(() -> Core.solve()).start(); break;
+					if (!Core.isSolving) {
+						new Thread(() -> Core.solve()).start();
+					} else {
+						System.out.println("Already solving.");
+					}
+					break;
 				case KeyEvent.VK_C:
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
@@ -99,8 +104,8 @@ public class Canvass extends JPanel {
 					selectedPoint = null;
 					break;
 				case KeyEvent.VK_PLUS:
-				case KeyEvent.VK_EQUALS: Core.genSize++; break;
-				case KeyEvent.VK_MINUS: Core.genSize--; break;
+				case KeyEvent.VK_EQUALS: Generator.N++; break;
+				case KeyEvent.VK_MINUS: Generator.N--; break;
 				case KeyEvent.VK_UP:
 					Core.speed = Core.speed.increase(); break;
 				case KeyEvent.VK_DOWN:
@@ -108,9 +113,9 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_P:
 					Core.problem = Core.problem.next(); break;
 				case KeyEvent.VK_I:
-					Core.densityUp(); break;
+					Generator.densityUp(); break;
 				case KeyEvent.VK_D:
-					Core.densityDown(); break;
+					Generator.densityDown(); break;
 					case KeyEvent.VK_A: Core.nextAlg(); break;
 				case KeyEvent.VK_F:
 					Core.genFx = Core.genFx.next(); break;
@@ -233,7 +238,7 @@ public class Canvass extends JPanel {
 	private void drawSpecialCH(Graphics2D g2) {
 		g2.setColor(colours.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		if (Core.solved && Core.isCH()) {
+		if (Core.isSolved && Core.isCH()) {
 			drawLine(g2, HullBase.back(0), HullBase.hull.get(0));
 		}
 		if (Core.chAlg == ChAlg.JARVIS_MARCH) {
@@ -424,9 +429,9 @@ public class Canvass extends JPanel {
 		labels.add("edge count"); 			vals.add(CoverBase.edgeCount());
 		labels.add("cover size"); 			vals.add(CoverBase.coverSize());
 		labels.add("generation density");
-		vals.add(Core.getDensityAsString());
+		vals.add(Generator.getDensityAsString());
 		}
-		labels.add("generation size");	vals.add(((Integer) Core.genSize).toString());
+		labels.add("generation size");	vals.add(((Integer) Generator.N).toString());
 
 		int height = LINE_HEIGHT * labels.size();
 		for (int i = 0; i < labels.size(); i++) {

@@ -18,9 +18,9 @@ public class Core {
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
 	static VcAlg vcAlg = VcAlg.EXACT_EXHAUSTIVE;
 	static GenFx genFx = GenFx.RADIAL;
-	static int genSize = 0;
-	static double density = 0.1;
-	static boolean solved = false;
+	static int maxSize = 0;
+	static boolean isSolving = false;
+	static boolean isSolved = false;
 
 	public static void main(String[] args) {
 		getParams();
@@ -33,10 +33,9 @@ public class Core {
 	}
 
 	/**
-	 * generates problem of specified {@code size}.
-	 * times one run of solve(). results printed and
+	 * Generates problem of size {@code Generator.N}.
+	 * Times one run of solve(). Results printed and
 	 * written to performance.csv
-	 * @param size - the size of problem to be generated
 	 */
 	public static void timedTest(int size) {
 		long startTime = System.nanoTime();
@@ -52,24 +51,31 @@ public class Core {
 	 * Solves using specified algorithm, visibility, and speed
 	 */
 	public static void solve() {
+		isSolving = true;
 		unsolve();
 		if (isCH()) {
 			if (HullBase.points.size() < 3) {
-				System.out.print("convex hull impossible");
-				return;
-			}
-			switch (chAlg) {
+				System.out.println("Convex hull impossible. Solve Aborted.");
+			} else {
+				switch (chAlg) {
 				case JARVIS_MARCH: Jarvis.march(); break;
 				case GRAHAM_SCAN: Graham.scan(); break;
 			}
+		}
 		} else {
-			switch (vcAlg) {
+			if (CoverBase.vertices.size() == 0) {
+				System.out.println("No vertices. Solve aborted.");
+			} else {
+				switch (vcAlg) {
 				case EXACT_EXHAUSTIVE: Exact.exhaustive(); break;
 				case EXACT_INCREASING_SIZE: Exact.increasingSize(); break;
+				case EXACT_ALEX_OPTIMIZATION: Exact.alexOptimization(); break;
 				case APPROXIMATION_ONE_BY_ONE: Approximation.oneByOne(); break;
 				case APPROXIMATION_TWO_FACTOR: Approximation.twoFactor(); break;
+				}
 			}
 		}
+		isSolving = false;
 	}
 	
 	/**
@@ -83,25 +89,31 @@ public class Core {
 
 	private static void getParams() {
 		Scanner scan = new Scanner(System.in);
+		// choose mode
 		System.out.print("Select Mode (\033[4mv\033[0misual|\033[4ma\033[0muto): ");
 		switch (scan.next().toLowerCase()) {
 			case "v":
 			case "visual": mode = Mode.VISUAL; break;
 			default: mode = Mode.AUTO; break;
 		}
-
+		// choose problem
+		System.out.print(
+			"Select Problem (\033[4mc\033[0monvex hull|" + 
+			"minimum \033[4mv\033[0mertex cover): "
+		);
+		switch (scan.next().toLowerCase()) {
+			case "c":
+			case "convex hull": problem = Problem.CONVEX_HULL; break;
+			default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
+		}
+		// choose problem size
 		if (isAuto()) {
-			System.out.print("Select Problem (\033[4mc\033[0monvex hull|\033[4mm\033[0minimum \033[4mv\033[0mertex cover): ");
-			switch (scan.next().toLowerCase()) {
-				case "c":
-				case "convex hull": problem = Problem.CONVEX_HULL; break;
-				default: problem  = Problem.MINIMUM_VERTEX_COVER; break;
-			}
-		}  else { problem = Problem.MINIMUM_VERTEX_COVER; }
-		
-		String msg = "Enter " + ((isAuto()) ? "max " : "") + "generation size: ";
-		System.out.print(msg);
-		genSize = scan.nextInt();
+			System.out.print("Enter max problem size: ");
+			Core.maxSize = scan.nextInt();
+		} else {
+			System.out.print("Enter generation size: ");
+			Generator.N = scan.nextInt();
+		}
 		scan.close();
 	}
 
@@ -231,19 +243,25 @@ public class Core {
 		
 	/** Clears the solution and intermediate data for a problem. */
 	static void unsolve() {
+		isSolved = false;
 		if (isCH()) {
 			HullBase.hull.clear();
-			HullBase.cleanup();
+			HullBase.start = null; // might not need these null assignments
+			HullBase.P = null;
+			HullBase.Q = null;
+			HullBase.R = null;
 		} else {
 			CoverBase.cover.clear();
-			CoverBase.cleanup();
+			CoverBase.curEdge = null;
+			CoverBase.rmEdge = null;
+			CoverBase.u = null;
+			CoverBase.v = null;
 		}
-		// leave here to undo cleanup()'s: solved = true;
-		solved = false;
 	}
 	
 	/** Deletes current problem. */
 	public static void reset() {
+		isSolving = false;
 		unsolve();
 		if (isCH()) HullBase.points.clear();
 		else if (!isCH()) {
@@ -252,31 +270,7 @@ public class Core {
 		}
 		show();
 	}
-	
-	public static void densityUp() {
-		if (density < 0.1) density += 0.05;
-		else if (density >= 0.9) density += 0.05;
-		else density += 0.1;
-
-		if (density > 1) density = 1;
-		density = Math.round(density * 100) / 100.0;
-	}
-
-	public static void densityDown() {
-		if (density <= 0.1) density -= 0.05;
-		else if (density > 0.9) density -= 0.05;
-		else density -= 0.1;
-
-		if (density < 0) density = 0;
-		density = Math.round(density * 100) / 100.0;
-	}
-
-	public static String getDensityAsString() {
-		return String.format("%.02f", density);
-	}
-
 
 	public static boolean isAuto() { return mode == Mode.AUTO; }
 	public static boolean isCH() { return problem == Problem.CONVEX_HULL; }
-	public static boolean densityEnds() { return density <= 0.1 || density >= 0.9; }
 }

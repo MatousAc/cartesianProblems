@@ -23,7 +23,53 @@ public class Exact extends CoverBase {
 		for (int i = 1; i < cardinality; i++) {
 			for (int j = 0; j < n; j++) {
 				if ((i & (1 << j)) > 0) { //The j-th element is used
-					currentCover.add(vertices.get(j));
+					try {
+						currentCover.add(vertices.get(j));
+					} catch(Exception e){ 
+						System.out.println("Exhaustive search aborted.");
+						return;
+					}
+					Core.show();
+				}
+			}
+			Core.show();
+			if (currentCover.size() < cover.size() &&
+				isCover(currentCover)) {
+				cover = (ArrayList<Point>) currentCover.clone();
+				Core.show();
+			}
+			currentCover.clear();
+			curEdge = null;
+		}
+		currentCover.clear();
+		cleanup();
+	}
+
+	/**
+	 * Solves the minimum vertex cover problem in 
+	 * {@code CoverBase.vertices} and {@code CoverBase.edges}
+	 * in O(2^V*E) time. {@code exhaustive()} considers every
+	 * possible subset of {@code Hullbase.vertices} and finds
+	 * the smallest cover possible.
+	 */
+	public static void alexOptimization() {
+		if  (edges.size() == 0) return;
+		Approximation.oneByOne();
+		int upperBound = cover.size();
+		cover.clear();
+		cover = (ArrayList<Point>) vertices.clone();
+		int n = vertices.size();
+		int cardinality = (1 << n);
+		for (int i = 1; i < cardinality; i++) {
+			if (Integer.bitCount(i) > upperBound) continue;
+			for (int j = 0; j < n; j++) {
+				if ((i & (1 << j)) > 0) { //The j-th element is used
+					try {
+						currentCover.add(vertices.get(j));
+					} catch(Exception e){ 
+						System.out.println("Exhaustive search aborted.");
+						return;
+					}
 					Core.show();
 				}
 			}
@@ -47,6 +93,10 @@ public class Exact extends CoverBase {
 	 * considers every possible subset of {@code Hullbase.vertices}
 	 * in order of increasing size. Thus, as soon as any cover 
 	 * is found, it is guaranteed to be the minimum.
+	 * Note: this particular algorithm has high space complexity,
+	 * so it will probably cause a Java heap error for graphs with 
+	 * more than 27 vertices. This is caught in automated testing 
+	 * mode but not in visual mode.
 	 */
 	public static void increasingSize() {
 		if  (edges.size() == 0) return;
@@ -69,6 +119,7 @@ public class Exact extends CoverBase {
 
 	/**
 	 * Puts all subsets of size {@code k} in {@code result}.
+	 * Taken from https://stackoverflow.com/a/12548381/14062356
 	 * @param points - the complete set of point (as ArrayList)
 	 * @param k - the number of elements in the subsets
 	 * @param idx
