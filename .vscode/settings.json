@@ -5,11 +5,13 @@
         "lib/**/*.jar"
     ],
     "cSpell.words": [
-        "algs",
-        "approximator",
-        "AUTOVISUAL",
-        "COUNTERCLOCK",
-        "GRAHM",
-        "unsolve"
+      "algs",
+      "approximator",
+      "AUTOVISUAL",
+      "COUNTERCLOCK",
+      "GRAHM",
+      "Heur",
+      "TOUSSAINT",
+      "unsolve"
     ]
 }

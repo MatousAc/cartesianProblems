@@ -18,6 +18,7 @@ public class Core {
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
 	static VcAlg vcAlg = VcAlg.EXACT_EXHAUSTIVE;
 	static GenFx genFx = GenFx.RADIAL;
+  static ChHeur chHeur = ChHeur.NONE;
 	static int maxSize = 0;
 	static boolean isSolving = false;
 	static boolean isSolved = false;
@@ -211,6 +212,15 @@ public class Core {
 		}
 	}
 
+  public static String getHeurAsString() {
+		if (isCH()) {
+			return chHeur.toString();
+		} else {
+			return "None";
+		}
+	}
+
+
 	/**
 	 * Adds a point when user interacts with UI.
 	 * Unsolves problem.
@@ -250,6 +260,7 @@ public class Core {
 			HullBase.P = null;
 			HullBase.Q = null;
 			HullBase.R = null;
+      HullBase.poly.erase();
 		} else {
 			CoverBase.cover.clear();
 			CoverBase.curEdge = null;

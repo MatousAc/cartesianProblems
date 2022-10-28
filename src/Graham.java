@@ -20,6 +20,7 @@ public class Graham extends HullBase{
 	 */
 	public static void scan() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
+    if (Core.chHeur == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
 		start = findStartPoint(pointCopy);
 		Core.show();
 		// sort with custom comparer

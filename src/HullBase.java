@@ -1,5 +1,9 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Iterator;
+
 import enums.*;
 
 /** Base class for a convex hull solver. */
@@ -22,6 +26,8 @@ public class HullBase {
 	/** The first point of interest for a convex hull algorithm. */
 	static Point Q = null;
 	static Point R = null;
+  /** A Polygon used for the Akl-Toussaint heuristic. */
+  static Polygon poly = new Polygon();
 	
 		/**
 	 * Conducts an automated test of all algorithms that
@@ -78,9 +84,32 @@ public class HullBase {
 		P = null;
 		Q = null;
 		R = null;
+    poly.erase();
 		Core.isSolved = true;
 		Core.show();
 	}
+
+  protected static void aklToussaint(ArrayList<Point> points) {
+    poly.erase();
+    Point xMin = Collections.min(points, xCompare);
+    Point yMin = Collections.min(points, yCompare);
+    Point xMax = Collections.max(points, xCompare);
+    Point yMax = Collections.max(points, yCompare);
+    poly.add(xMin); poly.add(yMin); poly.add(xMax); poly.add(yMax); 
+
+    Iterator<Point> iter = points.iterator();
+    while (iter.hasNext()) {
+      if (poly.contains(iter.next())) { 
+        iter.remove();
+      }
+    }
+  }
+  
+ static Comparator<Point> xCompare = (Point p1, Point p2) -> 
+   ((Double)p1.x).compareTo(p2.x);
+
+  static Comparator<Point> yCompare = (Point p1, Point p2) -> 
+    ((Double)p1.y).compareTo(p2.y);
 
 	/**
 	 * @param i

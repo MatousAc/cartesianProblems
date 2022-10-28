@@ -12,7 +12,7 @@ public class Canvass extends JPanel {
 	protected static final int NORMAL_SIZE = 10;
 	protected static final int CLOSENESS = NORMAL_SIZE + 6;
 	private static final int LINE_HEIGHT = 18;
-	static Map<String, Color> colours = new HashMap<String, Color>();
+	static Map<String, Color> colors = new HashMap<String, Color>();
 	MouseAdapter mouseAdapter;
 	private static boolean isDragging, isPaused, helpOn;
 	private static Point selectedPoint = null;
@@ -28,16 +28,16 @@ public class Canvass extends JPanel {
 		// design
 		setBackground(Color.WHITE);
 		setLayout(null);
-		colours.put("lightBlue", new Color(168, 213, 226));
-		colours.put("darkBlue", new Color(28, 114, 147));
-		colours.put("gold", new Color(249, 166, 32));
-		colours.put("red", new Color(253, 21, 27));
-		colours.put("orange", new Color(237, 106, 90));
-		colours.put("lightGreen", new Color(84, 140, 47));
-		colours.put("darkGreen", new Color(60, 73, 17));
-		colours.put("purple", new Color(161, 22, 146));
-		colours.put("default", new Color(11, 5, 0));
-		colours.put("white", new Color(255, 255, 255));
+		colors.put("lightBlue", new Color(168, 213, 226));
+		colors.put("darkBlue", new Color(28, 114, 147));
+		colors.put("gold", new Color(249, 166, 32));
+		colors.put("red", new Color(253, 21, 27));
+		colors.put("orange", new Color(237, 106, 90));
+		colors.put("lightGreen", new Color(84, 140, 47));
+		colors.put("darkGreen", new Color(60, 73, 17));
+		colors.put("purple", new Color(161, 22, 146));
+		colors.put("default", new Color(11, 5, 0));
+		colors.put("white", new Color(255, 255, 255));
 
 		// events
 		mouseAdapter = new MouseAdapter() {
@@ -82,8 +82,13 @@ public class Canvass extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
-				case KeyEvent.VK_G: 
-					Generator.generateProblem(); break;
+				case KeyEvent.VK_G: Generator.generateProblem(); break;
+        case KeyEvent.VK_P: Core.problem = Core.problem.next(); break;
+        case KeyEvent.VK_I: Generator.densityUp(); break;
+        case KeyEvent.VK_D: Generator.densityDown(); break;
+        case KeyEvent.VK_A: Core.nextAlg(); break;
+        case KeyEvent.VK_F: Core.genFx = Core.genFx.next(); break;
+        case KeyEvent.VK_H: Core.chHeur = Core.chHeur.next(); break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
 					if (!Core.isSolving) {
@@ -106,24 +111,12 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_PLUS:
 				case KeyEvent.VK_EQUALS: Generator.N++; break;
 				case KeyEvent.VK_MINUS: Generator.N--; break;
-				case KeyEvent.VK_UP:
-					Core.speed = Core.speed.increase(); break;
-				case KeyEvent.VK_DOWN:
-					Core.speed = Core.speed.decrease(); break;
-				case KeyEvent.VK_P:
-					Core.problem = Core.problem.next(); break;
-				case KeyEvent.VK_I:
-					Generator.densityUp(); break;
-				case KeyEvent.VK_D:
-					Generator.densityDown(); break;
-					case KeyEvent.VK_A: Core.nextAlg(); break;
-				case KeyEvent.VK_F:
-					Core.genFx = Core.genFx.next(); break;
+				case KeyEvent.VK_UP: Core.speed = Core.speed.increase(); break;
+				case KeyEvent.VK_DOWN: Core.speed = Core.speed.decrease(); break;
 				case KeyEvent.VK_ALT:
 				case KeyEvent.VK_CONTROL:
 				case KeyEvent.VK_WINDOWS:
-				case KeyEvent.VK_PAUSE:
-					break; // nothing for special keys
+				case KeyEvent.VK_PAUSE: break; // nothing for special keys
 				default: helpOn = true; // otherwise help
 				}
 				repaint();
@@ -219,13 +212,16 @@ public class Canvass extends JPanel {
 
 	// convex hull painting
 	private void paintCH(Graphics2D g2) {
-		drawHull(g2);
+    drawHull(g2);
+    if (Core.chHeur != ChHeur.NONE) {
+      drawPolygon(g2, HullBase.poly, colors.get("lightblue"));
+    }
 		drawSpecialCH(g2);
 		drawPoints(g2);
 	}
 	
 	private static void drawHull(Graphics2D g2) {
-		g2.setColor(colours.get("darkGreen"));
+		g2.setColor(colors.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		Iterator<Point> iter = HullBase.hull.iterator();
 		Point point = (iter.hasNext()) ? iter.next() : null;
@@ -236,7 +232,7 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawSpecialCH(Graphics2D g2) {
-		g2.setColor(colours.get("darkGreen"));
+		g2.setColor(colors.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		if (Core.isSolved && Core.isCH()) {
 			drawLine(g2, HullBase.back(0), HullBase.hull.get(0));
@@ -251,7 +247,7 @@ public class Canvass extends JPanel {
 		}
 
 		if (Graham.m1 != null && Graham.m2 != null) {
-			g2.setColor(colours.get("lightBlue"));
+			g2.setColor(colors.get("lightBlue"));
 			drawLine(g2, Graham.m1);
 			drawLine(g2, Graham.m2);
 		}
@@ -290,22 +286,22 @@ public class Canvass extends JPanel {
 		int size = NORMAL_SIZE;
 		boolean filled = true;
 		if (p == HullBase.start) {
-			g2.setColor(colours.get("darkBlue"));
+			g2.setColor(colors.get("darkBlue"));
 			size *= 1.5;
 		} else if (p == HullBase.P || p == HullBase.Q || p == HullBase.R) {
-			g2.setColor(colours.get("gold"));
+			g2.setColor(colors.get("gold"));
 			size *= 1.08;
 		} else if (p == Jarvis.next) {
 			size *= 1.5;
-			g2.setColor(colours.get("lightBlue"));
+			g2.setColor(colors.get("lightBlue"));
 		} else if (HullBase.hull.contains(p)) {
-			g2.setColor(colours.get("lightGreen"));
+			g2.setColor(colors.get("lightGreen"));
 		} else if (p == CoverBase.u || p == CoverBase.v) {
-			g2.setColor(colours.get("orange"));
+			g2.setColor(colors.get("orange"));
 			size *= 1.5;
 		} else if (CoverBase.cover != null && 
 			CoverBase.cover.contains(p)) {
-			g2.setColor(colours.get("purple"));
+			g2.setColor(colors.get("purple"));
 			size *= 1.5;
 		}
 		if (Exact.currentCover.contains(p)) filled = false;
@@ -317,7 +313,7 @@ public class Canvass extends JPanel {
 			g2.fillOval(x - (size / 2), y - (size / 2), size, size);
 		} else {
 			Color tempColor = g2.getColor();
-			g2.setColor(colours.get("white"));
+			g2.setColor(colors.get("white"));
 			g2.fillOval(x - (size / 3), y - (size / 3), size, size);
 			g2.setColor(tempColor);
 			g2.drawOval(x - (size / 2), y - (size / 2), size, size);
@@ -341,9 +337,9 @@ public class Canvass extends JPanel {
 
 	private static void drawLine(Graphics2D g2, Point p1, Point p2) {
 		if (p1 == HullBase.P || (p1 == HullBase.Q && p2 != Jarvis.next)) {
-			g2.setColor(colours.get("red"));
+			g2.setColor(colors.get("red"));
 		} else if (p1 == HullBase.Q && p2 == Jarvis.next) {
-			g2.setColor(colours.get("purple"));
+			g2.setColor(colors.get("purple"));
 		}
 		g2.drawLine(
 			(int) Math.round(p1.x), 
@@ -351,7 +347,7 @@ public class Canvass extends JPanel {
 			(int) Math.round(p2.x), 
 			(int) Math.round(p2.y)
 		);
-		g2.setColor(colours.get("darkGreen"));
+		g2.setColor(colors.get("darkGreen"));
 	}
 	
 	private void drawLine(Graphics2D g2, Line l) {
@@ -363,21 +359,21 @@ public class Canvass extends JPanel {
 		Point u = i.next();
 		Point v = i.next();
 		if (e == Approximation.curEdge) {
-			g2.setColor(colours.get("red"));
+			g2.setColor(colors.get("red"));
 			g2.setStroke(new BasicStroke(4));
 		} else if (e == Approximation.rmEdge) {
-			g2.setColor(colours.get("gold"));
+			g2.setColor(colors.get("gold"));
 			g2.setStroke(new BasicStroke(4));
 		} else if (Approximation.edgeSet != null && 
 			Approximation.edgeSet.contains(e)) {
-			g2.setColor(colours.get("darkGreen"));
+			g2.setColor(colors.get("darkGreen"));
 			g2.setStroke(new BasicStroke(3));
 		} else if ( CoverBase.cover != null &&
 			(CoverBase.cover.contains(u) || CoverBase.cover.contains(v))) {
-			g2.setColor(colours.get("lightGreen"));
+			g2.setColor(colors.get("lightGreen"));
 			g2.setStroke(new BasicStroke(2));			
 		} else {
-			g2.setColor(colours.get("default"));
+			g2.setColor(colors.get("default"));
 			g2.setStroke(new BasicStroke(1));
 		}
 
@@ -389,6 +385,28 @@ public class Canvass extends JPanel {
 		);
 	}
 
+  private void drawPolygon(Graphics2D g2, Polygon poly) {
+    drawPolygon(g2, poly, g2.getColor());
+  }
+
+  private void drawPolygon(Graphics2D g2, Polygon poly, Color color) {
+    drawPolygon(g2, poly, color, true);
+  }
+
+  private void drawPolygon(Graphics2D g2, Polygon poly, Color color, boolean close) {
+    if (poly.isEmpty()) return;
+    g2.setColor(color);
+		g2.setStroke(new BasicStroke(3));
+		Iterator<Point> iter = poly.iterator();
+		Point point = (iter.hasNext()) ? iter.next() : null;
+    Point start = point;
+		while (iter.hasNext()) {
+			drawLine(g2, point, point = iter.next());
+		}
+    if (close) drawLine(g2, point, start);
+		graphicDefaults(g2);
+  }
+
 	private void drawHelp(Graphics2D g2) {
 		ArrayList<String> keys = new ArrayList<String>();
 		ArrayList<String> cmds = new ArrayList<String>();
@@ -396,14 +414,15 @@ public class Canvass extends JPanel {
 		keys.add("=======");	cmds.add("=============================");
 		keys.add("G"); 			cmds.add("generate N points");
 		keys.add("S"); 			cmds.add("solve problem");
-		keys.add("\\n"); 		cmds.add("prompt next step");
-		keys.add("ESC"); 		cmds.add("erase points/dismiss help");
-		keys.add("DEL"); 		cmds.add("remove active point");
+		keys.add("A"); 			cmds.add("toggle algorithm");
+		keys.add("H"); 			cmds.add("toggle heuristic");
+		keys.add("F"); 			cmds.add("toggle generation function");
 		keys.add("up/down");	cmds.add("increase/decrease speed");
 		keys.add("+/-"); 		cmds.add("increase/decrease generation size");
 		keys.add("I/D"); 		cmds.add("increase/decrease graph density");
-		keys.add("A"); 			cmds.add("toggle algorithm");
-		keys.add("F"); 			cmds.add("toggle generation function");
+		keys.add("\\n"); 		cmds.add("prompt next step");
+		keys.add("DEL"); 		cmds.add("remove active point");
+		keys.add("ESC"); 		cmds.add("erase points/dismiss help");
 
 		for (int i = 0; i < keys.size(); i++) {
 			g2.drawString(keys.get(i), 20, 20 - y(i * LINE_HEIGHT));
@@ -418,6 +437,7 @@ public class Canvass extends JPanel {
 		labels.add("===============");	vals.add("==========");
 		labels.add("problem");					vals.add(Core.problem.toString());
 		labels.add("algorithm"); 			vals.add(Core.getAlgAsString());
+		labels.add("heuristic"); 			vals.add(Core.getHeurAsString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
 		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
 
@@ -441,7 +461,7 @@ public class Canvass extends JPanel {
 	}
 
 	private static void graphicDefaults(Graphics2D g2) {
-		g2.setColor(colours.get("default"));
+		g2.setColor(colors.get("default"));
 		g2.setStroke(new BasicStroke(1));
 		g2.setFont(new Font("Georgia", Font.BOLD, 16));
 	}
