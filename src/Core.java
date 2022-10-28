@@ -18,7 +18,7 @@ public class Core {
 	static ChAlg chAlg = ChAlg.JARVIS_MARCH;
 	static VcAlg vcAlg = VcAlg.EXACT_EXHAUSTIVE;
 	static GenFx genFx = GenFx.RADIAL;
-  static ChHeur chHeur = ChHeur.NONE;
+  static ChHeur chHeur = ChHeur.NO_HEURISTIC;
 	static int maxSize = 0;
 	static boolean isSolving = false;
 	static boolean isSolved = false;
@@ -132,7 +132,7 @@ public class Core {
 	private static void dataWriteHeader() {
 		if (isCH()) {
 			dataWrite("algorithm,generation style," + 
-			"point count,hull size,duration (s)\n");
+			"point count,hull size,heuristic,duration (s)\n");
 		}
 		else {
 			dataWrite("algorithm,vertex count,edge count," + 
@@ -157,6 +157,7 @@ public class Core {
 				genFx.toString(),
 				HullBase.pointCount(),
 				HullBase.hullSize(),
+        Core.chHeur.toString(),
 				df.format(duration) + "\n"
 			);
 		} else {

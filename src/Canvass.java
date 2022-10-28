@@ -213,7 +213,7 @@ public class Canvass extends JPanel {
 	// convex hull painting
 	private void paintCH(Graphics2D g2) {
     drawHull(g2);
-    if (Core.chHeur != ChHeur.NONE) {
+    if (Core.chHeur != ChHeur.NO_HEURISTIC) {
       drawPolygon(g2, HullBase.poly, colors.get("lightblue"));
     }
 		drawSpecialCH(g2);

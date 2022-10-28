@@ -1,11 +1,11 @@
 package enums;
 public enum ChHeur {
-	NONE,
+	NO_HEURISTIC,
 	AKL_TOUSSAINT {
-			@Override
-			public ChHeur next() {
-					return NONE;
-			};
+		@Override
+		public ChHeur next() {
+				return NO_HEURISTIC;
+		};
 	};
 
 	public ChHeur next() {

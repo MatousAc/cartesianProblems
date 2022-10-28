@@ -3,7 +3,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Iterator;
-
 import enums.*;
 
 /** Base class for a convex hull solver. */
@@ -41,6 +40,9 @@ public class HullBase {
 		ArrayList<GenFx> styles = new ArrayList<GenFx>(
 			EnumSet.allOf(GenFx.class)
 		);
+    ArrayList<ChHeur> heuristics = new ArrayList<ChHeur>(
+			EnumSet.allOf(ChHeur.class)
+		);
 		
 		for (int n = 4; n < Core.maxSize; n *= 2) {
 			Generator.N = n;
@@ -49,7 +51,10 @@ public class HullBase {
 				Generator.generateProblem();
 				for (ChAlg a : algs) {
 					Core.chAlg = a;
-					Core.timedTest(n);
+          for (ChHeur h : heuristics) {
+            Core.chHeur = h;
+  					Core.timedTest(n);
+          }
 				}
 				Core.reset();
 			}
