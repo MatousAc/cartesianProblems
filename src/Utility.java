@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -6,7 +9,7 @@ import java.util.Set;
 
 public class Utility {
 	/**
-	 * returns a deep clone of the ArrayList of Points passed in
+	 * Returns a deep clone of the ArrayList of Points passed in.
 	 * @param points
 	 * @return deep clone
 	 */
@@ -18,6 +21,9 @@ public class Utility {
     return clone;
 	}
 
+  /** Determines whether an arraylist of edges
+   * already contains an edge defined by the same two points.
+   */
 	public static boolean containsDeep(ArrayList<Edge> edges, Edge newEdge) {
 		for (Edge edge : edges) {
 			if (newEdge.equals(edge)) {
@@ -27,21 +33,15 @@ public class Utility {
 		return false;
 	}
 
-	/**
-	 * determines whether the ArrayList of Points contains duplicates
-	 * @param points
-	 * @return true or false
-	 */
+	/** Determines whether the ArrayList of Points contains duplicates. */
 	public static boolean containsDuplicates(ArrayList<Point> points) {
 		Set<Point> set = new HashSet<Point>(points);
 		return set.size() < points.size();
 	}
 
 	/**
-	 * determines whether the ArrayList of Points contains 
-	 * points with negative coordinates
-	 * @param points
-	 * @return
+	 * Determines whether the ArrayList of Points contains 
+	 * points with negative coordinates.
 	 */
 	public static boolean containsNegatives(ArrayList<Point> points) {
 		for (Point p : points) {
@@ -52,7 +52,13 @@ public class Utility {
 		return false;
 	}
 
-	// from geeksforgeeks.com
+  /**
+   * Chooses a random element from a set.
+   * From geeksforgeeks.com.
+   * @param <E> set implementation type
+   * @param set
+   * @return a random set element
+   */
 	static <E> E randomSetElem(Set<? extends E> set) { 
 		Random random = new Random();
 		int randomNumber = random.nextInt(set.size()); 
@@ -69,6 +75,30 @@ public class Utility {
 				// increase the current index 
 				currentIndex++; 
 		}
-	return randomElement; 
-} 
+	  return randomElement; 
+  } 
+
+  /**
+	 * Writes specified data to performance.csv.
+	 * @param data data to be written
+	 */
+  public static void dataWrite(String data) {
+    dataWrite(data, "performance.csv");
+  }
+
+	/**
+	 * Writes specified data to the specified a file.
+	 * @param data data to be written
+	 */
+	public static void dataWrite(String data, String filename) {
+		try {
+			FileWriter fw = new FileWriter(filename, true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(data);
+			bw.flush();
+			bw.close();
+		} catch (IOException e) {
+      e.printStackTrace();
+    }
+	}
 }

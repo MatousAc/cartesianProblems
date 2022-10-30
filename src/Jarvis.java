@@ -9,7 +9,7 @@ import enums.ChHeur;
  * Contains a solution to the convex hull problem. 
  * Use {@code march()} method to solve.
  * */
-public class Jarvis extends HullBase {
+public class Jarvis extends Hull {
 	/** The point we currently think will be added to the hull next. */
 	protected static Point next;
 	/**
@@ -23,7 +23,7 @@ public class Jarvis extends HullBase {
 	public static void march() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
 		start = findStartPoint(pointCopy);
-    if (Core.chHeur == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
+    if (Hull.heuristic == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
 
 		P = new Point(start.x, start.y - 1); 
 		Q = start; next = start;

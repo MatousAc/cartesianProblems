@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -6,7 +7,9 @@ import java.util.Iterator;
 import enums.*;
 
 /** Base class for a minimum vertex cover solver or approximator. */
-public class CoverBase {
+public class Cover implements Problem {
+  /** Indicates which algorithm is being used to solve. */
+	static VcAlg alg = VcAlg.EXACT_EXHAUSTIVE;
 	/** The list of vertices V in graph {V, E}. */
 	static ArrayList<Point> vertices = new ArrayList<Point>();
 	/** The list of edges E in graph {V, E}. */
@@ -27,18 +30,46 @@ public class CoverBase {
 	/** A point of interest in a minimum vertex cover algorithm. */
 	static Point v;
 
-	/**
-	 * Conducts an automated test of all algorithms that
-	 * can be used to solve the minimum vertex cover 
-	 * problem. The size of the problem increases by one
-	 * for each iteration and densities from 0-1 are tried
-	 * for each. Every size-density combination cycles through
-	 * every VcAlg algorithm.
-	 */
-	protected static void test() {
-		ArrayList<VcAlg> algs = new ArrayList<VcAlg>(EnumSet.allOf(VcAlg.class));
-		Core.genFx = GenFx.RECTANGULAR;
+  public void solve() {
+    Core.isSolving = true;
+		unsolve();
+    if (vertices.size() == 0) {
+      System.out.println("No vertices present. Solve aborted.");
+    } else {
+      switch (alg) {
+        case EXACT_EXHAUSTIVE: Exact.exhaustive(); break;
+        case EXACT_INCREASING_SIZE: Exact.increasingSize(); break;
+        case EXACT_ALEX_OPTIMIZATION: Exact.alexOptimization(); break;
+        case APPROXIMATION_ONE_BY_ONE: Approximation.oneByOne(); break;
+        case APPROXIMATION_TWO_FACTOR: Approximation.twoFactor(); break;
+      }
+    }
+    Core.isSolving = false;
+  }
+
+  public void unsolve() {
+		Core.isSolved = false;
+    cover.clear();
+		curEdge = null;
+		rmEdge = null;
+		u = null;
+		v = null;
+  }
+
+	public void reset() {
+		Core.isSolving = false;
+		unsolve();
+		vertices.clear();
+		edges.clear();
+		Core.show();
+	}
+
+	public void test() {
+		ArrayList<VcAlg> algs = 
+      new ArrayList<VcAlg>(EnumSet.allOf(VcAlg.class));
+		Generator.fx = GenFx.RECTANGULAR;
 		
+    Utility.dataWrite(getDataHead());
 		for (int n = 2; n <= Core.maxSize; n++) {
 			Generator.density = 0;
 			Generator.N = n;
@@ -46,20 +77,20 @@ public class CoverBase {
 				Generator.densityUp();
 				Generator.generateProblem();
 				for (VcAlg a : algs) {
-					Core.vcAlg = a;
+					alg = a;
 					try {
 						Core.timedTest(n);
 					} catch (OutOfMemoryError e) {
 						System.out.printf(
 							"Ran out of memory while using %s to solve a " + 
 							"graph with %d vertices at %s density.\n", 
-							Core.vcAlg.toString(),
+							alg.toString(),
 							vertices.size(), 
 							graphDensity()
 						);
 					}
 				}
-				Core.reset();
+				reset();
 			}
 		}
 	}
@@ -83,7 +114,7 @@ public class CoverBase {
 	
 	/**
 	 * Determines if the candidate subset covers all edges
-	 * in {@code CoverBase.edges}
+	 * in {@code edges}
 	 * @param candidate
 	 * @return {@code true} if candidate covers. otherwise {@code false} 
 	 */
@@ -120,22 +151,63 @@ public class CoverBase {
 		Core.show();
 	}
 
-	// helper f(x)s
-	/** @return the size of  {@code CoverBase.vertices} as a String. */
+	/// utility f(x)s ///
+  public String getDataHead() {
+    return "algorithm,vertex count,edge count," + 
+    "density,cover size,duration (s)\n";
+  }
+
+  public String getData(Double duration) {
+    DecimalFormat df = new DecimalFormat("#.#");
+    df.setMaximumFractionDigits(10);
+
+    return String.join(",", 
+      alg.toString(),
+      vertexCount(),
+      edgeCount(),
+      graphDensity(),
+      coverSize(),
+      df.format(duration) + "\n"
+    );
+  }
+
+	public void nextAlg() {
+		alg = alg.next();
+	}
+
+	public void addPoint(Point p) {
+		vertices.add(p);
+		unsolve();
+	}
+
+  public void removePoint(Point p) {
+		vertices.remove(p);
+		HashSet<Point> hs = new HashSet<Point>();
+		hs.add(p);
+		removeIncidentEdges(hs, Cover.edges);
+		unsolve();
+	}
+
+  public String probAsString() { return "minimum vertex cover"; }
+  public String algAsString() { return alg.toString(); }
+  public String heurAsString() { return "no heuristic"; }
+  public ArrayList<Point> getPointDestination() { return vertices; }
+
+	/** @return the size of  {@code vertices} as a String. */
 	public static String vertexCount() {
 		return ((Integer) vertices.size()).toString();
 	}
-	/** @return the size of  {@code CoverBase.edges} as a String. */
+	/** @return the size of  {@code edges} as a String. */
 	public static String edgeCount() {
 		return ((Integer) edges.size()).toString();
 	}
-	/** Returns the size of  {@code CoverBase.cover} as a String. */
+	/** Returns the size of  {@code cover} as a String. */
 	public static String coverSize() {
 		return ((Integer) cover.size()).toString();
 	}
 	/** @return the density of the graph represented by of 
-	 * {@code CoverBase.vertices} and 
-	 * {@code CoverBase.edges} as a {@code String}.
+	 * {@code vertices} and 
+	 * {@code edges} as a {@code String}.
 	 */
 	public static String graphDensity() {
 		int v = vertices.size();

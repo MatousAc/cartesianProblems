@@ -8,7 +8,7 @@ import enums.*;
  * Contains a solution to the convex hull problem. 
  * Use {@code scan()} method to solve.
  * */
-public class Graham extends HullBase{
+public class Graham extends Hull{
 	public static Line m1 = null;
 	public static Line m2 = null;
 	
@@ -20,7 +20,7 @@ public class Graham extends HullBase{
 	 */
 	public static void scan() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
-    if (Core.chHeur == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
+    if (Hull.heuristic == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
 		start = findStartPoint(pointCopy);
 		Core.show();
 		// sort with custom comparer

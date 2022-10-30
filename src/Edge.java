@@ -17,10 +17,10 @@ public class Edge extends HashSet<Point> {
 
 	/**
 	 * Adds up to two points to Edge. 
-	 * After the Edge is full, this method does simply returns false.
+	 * After the Edge is full, this method simply returns false.
 	 * @param e element to be added to this Edge
 	 * @return {@code true} if point was added successfully.
-	 * {@code false} if point is already in Edge or 
+	 * {@code false} if point is already in Edge or Edge is full.
 	 */
 	@Override
 	public boolean add(Point p) {
@@ -46,9 +46,7 @@ public class Edge extends HashSet<Point> {
 		return false;
 	}
 
-	/**
-	 * Returns a string representation of the Edge
-	 */
+	/** Returns a string representation of the Edge. */
 	@Override
 	public String toString() {
 		Iterator<Point> i = this.iterator();

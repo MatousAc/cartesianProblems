@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * for a traditional approach, and {@code increasingSize()} for 
  * a slightly faster variant.
  * */
-public class Exact extends CoverBase {
+public class Exact extends Cover {
 	static ArrayList<Point> currentCover = new ArrayList<Point>();
 	/**
 	 * Solves the minimum vertex cover problem in 

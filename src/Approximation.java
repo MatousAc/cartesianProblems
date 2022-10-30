@@ -7,7 +7,7 @@ import java.util.Set;
  * for a traditional approach, and {@code oneByOne()} for 
  * a slightly better approximation (on average).
  * */
-public class Approximation extends CoverBase {
+public class Approximation extends Cover {
 	static Set<Edge> edgeSet;
 	/**
 	 * approximates the minimal vertex cover. it is 

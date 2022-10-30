@@ -21,9 +21,9 @@ public class Canvass extends JPanel {
 	public Canvass() {
 		reset();
 		if (Core.isCH()) {
-			points = HullBase.points;
+			points = Hull.points;
 		} else {
-			points = CoverBase.vertices;
+			points = Cover.vertices;
 		}
 		// design
 		setBackground(Color.WHITE);
@@ -54,7 +54,7 @@ public class Canvass extends JPanel {
 				if (selectedPoint != null) return; // leave point where it is
 				int x = e.getX(),
 					y = y(e.getY());
-				Core.addPointManually(new Point(x, y));
+				Core.prob.addPoint(new Point(x, y));
 				isDragging = false;
 				repaint();
 			}
@@ -82,17 +82,22 @@ public class Canvass extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				super.keyTyped(e);
 				switch (e.getKeyCode()) {
-				case KeyEvent.VK_G: Generator.generateProblem(); break;
-        case KeyEvent.VK_P: Core.problem = Core.problem.next(); break;
+        case KeyEvent.VK_P: Core.nextProblem(); break;
         case KeyEvent.VK_I: Generator.densityUp(); break;
         case KeyEvent.VK_D: Generator.densityDown(); break;
-        case KeyEvent.VK_A: Core.nextAlg(); break;
-        case KeyEvent.VK_F: Core.genFx = Core.genFx.next(); break;
-        case KeyEvent.VK_H: Core.chHeur = Core.chHeur.next(); break;
+        case KeyEvent.VK_A: Core.prob.nextAlg(); break;
+        case KeyEvent.VK_F: Generator.fx = Generator.fx.next(); break;
+        case KeyEvent.VK_G:
+          Core.prob.unsolve();
+          Generator.generateProblem();
+          break;
+        case KeyEvent.VK_H: 
+          Hull.heuristic = Hull.heuristic.next();
+          break;
 				case KeyEvent.VK_S:
 				case KeyEvent.VK_SPACE:
 					if (!Core.isSolving) {
-						new Thread(() -> Core.solve()).start();
+						new Thread(() -> Core.prob.solve()).start();
 					} else {
 						System.out.println("Already solving.");
 					}
@@ -101,11 +106,11 @@ public class Canvass extends JPanel {
 				case KeyEvent.VK_ENTER: isPaused = false; break;
 				case KeyEvent.VK_ESCAPE:
 					if (helpOn) helpOn = false;
-					else Core.reset();
+					else Core.prob.reset();
 					break;
 				case KeyEvent.VK_DELETE:
 				case KeyEvent.VK_BACK_SPACE:
-					Core.removePointManually(selectedPoint);
+					Core.prob. removePoint(selectedPoint);
 					selectedPoint = null;
 					break;
 				case KeyEvent.VK_PLUS:
@@ -148,34 +153,24 @@ public class Canvass extends JPanel {
 		return dx < CLOSENESS && dy < CLOSENESS;
 	}
 
-	/**
-	 * thread sleeps for designated number of milliseconds
-	 * @param ms
-	 */
+	/** Thread sleeps for {@code ms} milliseconds. Stalls on prompt speed. */
 	protected static void wait(int ms) {
 		if (Core.speed == Speed.PROMPT && isPaused == false) { 
-			prompt();
+			isPaused = true;
+  		while (isPaused) {
+  			wait(10);
+  		};
 		}
 		try { Thread.sleep(ms); }
 		catch (Exception e) { e.printStackTrace(); }
 	}
-
-	/**
-	 * pauses calling thread until isPaused == false
-	 */
-	protected static void prompt() {
-		isPaused = true;
-		while (isPaused) {
-			wait(10);
-		};
-	}
 	
 	/**
-	 * determines the delay that the calling thread should be
+	 * Determines the delay that the calling thread should be
 	 * paused for depending on the speed setting in Core
-	 * @return delay time in milliseconds
+	 * @return delay time in milliseconds.
 	 */
-	protected static int delay() {
+	protected static int getDelay() {
 		switch (Core.speed) {
 			case UNRESTRAINED: 	return 0;
 			case LIGHTNING:			return 1;
@@ -189,19 +184,19 @@ public class Canvass extends JPanel {
 		}
 	}
 
-	///////// painting the UI /////////	
+	/// painting the UI ///
 	@Override // main delegator
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		graphicDefaults(g2);
 		g2.translate(0, height());
-		g2.scale(1, -1); // Invert y-axis
+		g2.scale(1, -1); // invert y-axis
 		if (Core.isCH()) {
-			points = HullBase.points;
+			points = Hull.points;
 			paintCH(g2);
 		} else if (!Core.isCH()) {
-			points = CoverBase.vertices;
+			points = Cover.vertices;
 			paintVC(g2);
 		}
 		
@@ -213,8 +208,8 @@ public class Canvass extends JPanel {
 	// convex hull painting
 	private void paintCH(Graphics2D g2) {
     drawHull(g2);
-    if (Core.chHeur != ChHeur.NO_HEURISTIC) {
-      drawPolygon(g2, HullBase.poly, colors.get("lightblue"));
+    if (Hull.heuristic != ChHeur.NO_HEURISTIC) {
+      drawPolygon(g2, Hull.poly, colors.get("lightblue"));
     }
 		drawSpecialCH(g2);
 		drawPoints(g2);
@@ -223,7 +218,7 @@ public class Canvass extends JPanel {
 	private static void drawHull(Graphics2D g2) {
 		g2.setColor(colors.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
-		Iterator<Point> iter = HullBase.hull.iterator();
+		Iterator<Point> iter = Hull.hull.iterator();
 		Point point = (iter.hasNext()) ? iter.next() : null;
 		while (iter.hasNext()) {
 			drawLine(g2, point, point = iter.next());
@@ -235,16 +230,15 @@ public class Canvass extends JPanel {
 		g2.setColor(colors.get("darkGreen"));
 		g2.setStroke(new BasicStroke(3));
 		if (Core.isSolved && Core.isCH()) {
-			drawLine(g2, HullBase.back(0), HullBase.hull.get(0));
+			drawLine(g2, Hull.back(0), Hull.hull.get(0));
 		}
-		if (Core.chAlg == ChAlg.JARVIS_MARCH) {
-			if (HullBase.Q != null && Jarvis.next != null)
-				drawLine(g2, HullBase.Q, Jarvis.next);
-			if (HullBase.Q != null && HullBase.R != null)
-				drawLine(g2, HullBase.Q, HullBase.R);
-			if (HullBase.P != null && HullBase.Q != null)
-				drawLine(g2, HullBase.P, HullBase.Q);
-		}
+    
+		if (Hull.Q != null && Jarvis.next != null)
+			drawLine(g2, Hull.Q, Jarvis.next);
+		if (Hull.Q != null && Hull.R != null)
+			drawLine(g2, Hull.Q, Hull.R);
+		if (Hull.P != null && Hull.Q != null)
+			drawLine(g2, Hull.P, Hull.Q);
 
 		if (Graham.m1 != null && Graham.m2 != null) {
 			g2.setColor(colors.get("lightBlue"));
@@ -265,7 +259,7 @@ public class Canvass extends JPanel {
 	}
 
 	private void drawEdges(Graphics2D g2) {
-		for (Edge edge : CoverBase.edges) {
+		for (Edge edge : Cover.edges) {
 			drawEdge(g2, edge);
 		}
 	}
@@ -285,22 +279,22 @@ public class Canvass extends JPanel {
 		// control colour and size
 		int size = NORMAL_SIZE;
 		boolean filled = true;
-		if (p == HullBase.start) {
+		if (p == Hull.start) {
 			g2.setColor(colors.get("darkBlue"));
 			size *= 1.5;
-		} else if (p == HullBase.P || p == HullBase.Q || p == HullBase.R) {
+		} else if (p == Hull.P || p == Hull.Q || p == Hull.R) {
 			g2.setColor(colors.get("gold"));
 			size *= 1.08;
 		} else if (p == Jarvis.next) {
 			size *= 1.5;
 			g2.setColor(colors.get("lightBlue"));
-		} else if (HullBase.hull.contains(p)) {
+		} else if (Hull.hull.contains(p)) {
 			g2.setColor(colors.get("lightGreen"));
-		} else if (p == CoverBase.u || p == CoverBase.v) {
+		} else if (p == Cover.u || p == Cover.v) {
 			g2.setColor(colors.get("orange"));
 			size *= 1.5;
-		} else if (CoverBase.cover != null && 
-			CoverBase.cover.contains(p)) {
+		} else if (Cover.cover != null && 
+			Cover.cover.contains(p)) {
 			g2.setColor(colors.get("purple"));
 			size *= 1.5;
 		}
@@ -336,9 +330,9 @@ public class Canvass extends JPanel {
 	}
 
 	private static void drawLine(Graphics2D g2, Point p1, Point p2) {
-		if (p1 == HullBase.P || (p1 == HullBase.Q && p2 != Jarvis.next)) {
+		if (p1 == Hull.P || (p1 == Hull.Q && p2 != Jarvis.next)) {
 			g2.setColor(colors.get("red"));
-		} else if (p1 == HullBase.Q && p2 == Jarvis.next) {
+		} else if (p1 == Hull.Q && p2 == Jarvis.next) {
 			g2.setColor(colors.get("purple"));
 		}
 		g2.drawLine(
@@ -368,8 +362,8 @@ public class Canvass extends JPanel {
 			Approximation.edgeSet.contains(e)) {
 			g2.setColor(colors.get("darkGreen"));
 			g2.setStroke(new BasicStroke(3));
-		} else if ( CoverBase.cover != null &&
-			(CoverBase.cover.contains(u) || CoverBase.cover.contains(v))) {
+		} else if ( Cover.cover != null &&
+			(Cover.cover.contains(u) || Cover.cover.contains(v))) {
 			g2.setColor(colors.get("lightGreen"));
 			g2.setStroke(new BasicStroke(2));			
 		} else {
@@ -435,19 +429,19 @@ public class Canvass extends JPanel {
 		ArrayList<String> vals = new ArrayList<String>();
 		labels.add("Information"); 		vals.add("Value");
 		labels.add("===============");	vals.add("==========");
-		labels.add("problem");					vals.add(Core.problem.toString());
-		labels.add("algorithm"); 			vals.add(Core.getAlgAsString());
-		labels.add("heuristic"); 			vals.add(Core.getHeurAsString());
+		labels.add("problem");					vals.add(Core.prob.probAsString());
+		labels.add("algorithm"); 			vals.add(Core.prob.algAsString());
+		labels.add("heuristic"); 			vals.add(Core.prob.heurAsString());
 		labels.add("speed"); 					vals.add(Core.speed.toString());
-		labels.add("generation f(x)");	vals.add(Core.genFx.toString());
+		labels.add("generation f(x)");	vals.add(Generator.fx.toString());
 
 		if (Core.isCH()) {
-		labels.add("point count"); 		vals.add(HullBase.pointCount());
-		labels.add("hull size"); 			vals.add(HullBase.hullSize());
+		labels.add("point count"); 		vals.add(Hull.pointCount());
+		labels.add("hull size"); 			vals.add(Hull.hullSize());
 		} else {
-		labels.add("vertex count"); 		vals.add(CoverBase.vertexCount());
-		labels.add("edge count"); 			vals.add(CoverBase.edgeCount());
-		labels.add("cover size"); 			vals.add(CoverBase.coverSize());
+		labels.add("vertex count"); 		vals.add(Cover.vertexCount());
+		labels.add("edge count"); 			vals.add(Cover.edgeCount());
+		labels.add("cover size"); 			vals.add(Cover.coverSize());
 		labels.add("generation density");
 		vals.add(Generator.getDensityAsString());
 		}

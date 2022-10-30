@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -6,12 +7,16 @@ import java.util.Iterator;
 import enums.*;
 
 /** Base class for a convex hull solver. */
-public class HullBase {
+public class Hull implements Problem {
+  /** Identifies what algorithm is being used. */
+	static ChAlg alg = ChAlg.JARVIS_MARCH;
+  /** What heuristic is being used. */
+  static ChHeur heuristic = ChHeur.NO_HEURISTIC;
 	/** The points that make up the current convex hull problem. */
 	static ArrayList<Point> points = new ArrayList<Point>();
 	/**
 	 * The list of points along the convex hull for the current
-	 * problem, {@code HullBase.points}
+	 * problem, {@code points}
 	 */
 	static ArrayList<Point> hull = new ArrayList<Point>();
 	/**
@@ -22,41 +27,66 @@ public class HullBase {
 	static Point start;
 	/** The first point of interest for a convex hull algorithm.*/
 	static Point P = null;
-	/** The first point of interest for a convex hull algorithm. */
+	/** The second point of interest for a convex hull algorithm. */
 	static Point Q = null;
+	/** The third point of interest for a convex hull algorithm. */
 	static Point R = null;
   /** A Polygon used for the Akl-Toussaint heuristic. */
   static Polygon poly = new Polygon();
 	
-		/**
-	 * Conducts an automated test of all algorithms that
-	 * can be used to solve the Convex Hull problem. The
-	 * size of the problem doubles over each iteration.
-	 * Every combination of generation function and 
-	 * algorithm is tried for each size.
-	 */
-	protected static void test() {
-		ArrayList<ChAlg> algs = new ArrayList<ChAlg>(EnumSet.allOf(ChAlg.class));
-		ArrayList<GenFx> styles = new ArrayList<GenFx>(
-			EnumSet.allOf(GenFx.class)
-		);
-    ArrayList<ChHeur> heuristics = new ArrayList<ChHeur>(
-			EnumSet.allOf(ChHeur.class)
-		);
+  public void solve() {
+    Core.isSolving = true;
+		unsolve();
+    if (points.size() < 3) {
+      System.out.println("Convex hull impossible. Solve Aborted.");
+    } else {
+      switch (alg) {
+        case JARVIS_MARCH: Jarvis.march(); break;
+        case GRAHAM_SCAN: Graham.scan(); break;
+      }
+    }
+		Core.isSolving = false;
+  }
+
+  public void unsolve() {
+		Core.isSolved = false;
+    hull.clear();
+		start = null;
+		P = null;
+		Q = null;
+		R = null;
+    poly.erase();
+  }
+
+  public void reset() {
+		Core.isSolving = false;
+		unsolve();
+		points.clear();
+		Core.show();
+	}
+
+	public void test() {
+		ArrayList<ChAlg> algs = 
+      new ArrayList<ChAlg>(EnumSet.allOf(ChAlg.class));
+		ArrayList<GenFx> styles = 
+      new ArrayList<GenFx>(EnumSet.allOf(GenFx.class));
+    ArrayList<ChHeur> heuristics = 
+      new ArrayList<ChHeur>(EnumSet.allOf(ChHeur.class));
 		
+    Utility.dataWrite(getDataHead());
 		for (int n = 4; n < Core.maxSize; n *= 2) {
 			Generator.N = n;
 			for (GenFx s : styles) {
-				Core.genFx = s;
+				Generator.fx = s;
 				Generator.generateProblem();
 				for (ChAlg a : algs) {
-					Core.chAlg = a;
+					alg = a;
           for (ChHeur h : heuristics) {
-            Core.chHeur = h;
+            heuristic = h;
   					Core.timedTest(n);
           }
 				}
-				Core.reset();
+				reset();
 			}
 		}
 	}
@@ -115,6 +145,43 @@ public class HullBase {
 
   static Comparator<Point> yCompare = (Point p1, Point p2) -> 
     ((Double)p1.y).compareTo(p2.y);
+
+  /// utility f(x)s ///
+  public String getDataHead() {
+    return "algorithm,generation style," + 
+    "point count,hull size,heuristic,duration (s)\n";
+  }
+
+  public String getData(Double duration) {
+    DecimalFormat df = new DecimalFormat("#.#");
+    df.setMaximumFractionDigits(10);
+
+		return String.join(",", 
+			alg.toString(),
+			Generator.fx.toString(),
+			pointCount(),
+			hullSize(),
+      heuristic.toString(),
+			df.format(duration) + "\n"
+		);
+  }
+
+	public void nextAlg() { alg = alg.next(); }
+
+  public void addPoint(Point p) {
+		points.add(p);
+		unsolve();
+	}
+
+  public void removePoint(Point p) {
+		points.remove(p);
+		unsolve();
+	}
+	
+  public String probAsString() { return "convex hull"; }
+  public String algAsString() { return alg.toString(); }
+  public String heurAsString() { return heuristic.toString(); }
+  public ArrayList<Point> getPointDestination() { return points; }
 
 	/**
 	 * @param i
