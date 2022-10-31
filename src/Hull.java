@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.awt.Graphics2D;
 import enums.*;
 
 /** Base class for a convex hull solver. */
@@ -18,7 +19,7 @@ public class Hull implements Problem {
 	 * The list of points along the convex hull for the current
 	 * problem, {@code points}
 	 */
-	static ArrayList<Point> hull = new ArrayList<Point>();
+	static Polygon hull = new Polygon();
 	/**
 	 * The leftmost lowest point in the problem. This is 
 	 * guaranteed to be on the hull, so it is used as a
@@ -45,12 +46,15 @@ public class Hull implements Problem {
         case GRAHAM_SCAN: Graham.scan(); break;
       }
     }
+    hull.close();
+		cleanup();
+    Core.show();
 		Core.isSolving = false;
   }
 
   public void unsolve() {
 		Core.isSolved = false;
-    hull.clear();
+    hull.erase();
 		start = null;
 		P = null;
 		Q = null;
@@ -62,6 +66,20 @@ public class Hull implements Problem {
 		Core.isSolving = false;
 		unsolve();
 		points.clear();
+		Core.show();
+	}
+
+	/**
+	 * Cleans up the HullBase's intermediate data 
+	 * structures once the convex hull is found.
+	 */
+	protected static void cleanup() {
+		start = null;
+		P = null;
+		Q = null;
+		R = null;
+    poly.erase();
+		Core.isSolved = true;
 		Core.show();
 	}
 
@@ -110,31 +128,21 @@ public class Hull implements Problem {
 		return leftBottom;
 	}
 
-	/**
-	 * Cleans up the HullBase's intermediate data 
-	 * structures once the convex hull is found.
-	 */
-	protected static void cleanup() {
-		start = null;
-		P = null;
-		Q = null;
-		R = null;
-    poly.erase();
-		Core.isSolved = true;
-		Core.show();
-	}
-
   protected static void aklToussaint(ArrayList<Point> points) {
     poly.erase();
     Point xMin = Collections.min(points, xCompare);
     Point yMin = Collections.min(points, yCompare);
     Point xMax = Collections.max(points, xCompare);
     Point yMax = Collections.max(points, yCompare);
-    poly.add(xMin); poly.add(yMin); poly.add(xMax); poly.add(yMax); 
+    poly.add(xMin); Core.show();
+    poly.add(yMin); Core.show();
+    poly.add(xMax); Core.show();
+    poly.add(yMax); Core.show();
+    poly.close(); Core.show();
 
     Iterator<Point> iter = points.iterator();
     while (iter.hasNext()) {
-      if (poly.contains(iter.next())) { 
+      if (poly.surrounds(iter.next())) { 
         iter.remove();
       }
     }
@@ -181,7 +189,7 @@ public class Hull implements Problem {
   public String probAsString() { return "convex hull"; }
   public String algAsString() { return alg.toString(); }
   public String heurAsString() { return heuristic.toString(); }
-  public ArrayList<Point> getPointDestination() { return points; }
+  public ArrayList<Point> getPoints() { return points; }
 
 	/**
 	 * @param i
@@ -200,6 +208,49 @@ public class Hull implements Problem {
 		return ((Integer) hull.size()).toString();
 	}
 
+  /// delegation f(x)s ///
+  public void paint(Canvass c) {
+    c.drawPolygon(poly, "lightBlue");
+    c.drawPolygon(hull, "darkGreen");
+
+    // drawing slopes
+    c.setStroke(3);
+		if (Graham.m1 != null && Graham.m2 != null) {
+			c.setColor("red");
+			c.drawLine(Graham.m1);
+			c.drawLine(Graham.m2);
+		}
+    // drawing PQR Next
+		if (Q != null && Jarvis.next != null) {
+			c.setColor("purple");
+			c.drawLine(Q, Jarvis.next);
+    }
+		if (Q != null && R != null) {
+			c.setColor("red");
+			c.drawLine(Q, R);
+    }
+		if (P != null && Q != null) {
+			c.setColor("red");
+			c.drawLine(P, Q);
+    }
+    c.graphicDefaults();
+    
+    // finally drawing points on top
+    for (Point p : points) {
+      if (p == start) {
+			  c.drawPoint(p, "darkBlue", 1.5);
+      } else if (p == P || p == Q || p == R) {
+			  c.drawPoint(p, "gold", 1.08);
+      } else if (p == Jarvis.next) {
+			  c.drawPoint(p,"lightBlue", 1.5);
+      } else if (hull.contains(p)) {
+			  c.drawPoint(p,"lightGreen");
+      } else {
+        c.drawPoint(p);
+      }
+		}
+  }
+
 	// debugging f(x)s
 	protected static void printCurrentState() {
 		System.out.println("hull: " + hull);
@@ -207,7 +258,7 @@ public class Hull implements Problem {
 	}
 
 	/** Removes last element from hull. */
-	protected static void solPop() {
+	protected static void hullPop() {
 		hull.remove(hull.size() - 1);
 	}
 }

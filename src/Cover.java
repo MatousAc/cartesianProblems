@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.awt.Graphics2D;
 import enums.*;
 
 /** Base class for a minimum vertex cover solver or approximator. */
@@ -148,6 +149,7 @@ public class Cover implements Problem {
 		u = null;
 		v = null;
 		Core.isSolved = true;
+    Exact.currentCover.clear();
 		Core.show();
 	}
 
@@ -191,7 +193,7 @@ public class Cover implements Problem {
   public String probAsString() { return "minimum vertex cover"; }
   public String algAsString() { return alg.toString(); }
   public String heurAsString() { return "no heuristic"; }
-  public ArrayList<Point> getPointDestination() { return vertices; }
+  public ArrayList<Point> getPoints() { return vertices; }
 
 	/** @return the size of  {@code vertices} as a String. */
 	public static String vertexCount() {
@@ -215,4 +217,48 @@ public class Cover implements Problem {
 		double density = (double) e / (v * (v - 1) / 2);
 		return String.format("%.04f", density);
 	}
+
+  /// delegation f(x)s ///
+  public void paint(Canvass c) {
+    // drawing edges
+    for (Edge edge : Cover.edges) {
+      Iterator<Point> i = edge.iterator();
+      Point u = i.next();
+      Point v = i.next();
+  
+      if (edge == Approximation.curEdge) {
+        c.setColor("red");
+        c.setStroke(4);
+      } else if (edge == Approximation.rmEdge) {
+        c.setColor("gold");
+        c.setStroke(4);
+      } else if (Approximation.edgeSet != null && 
+        Approximation.edgeSet.contains(edge)) {
+        c.setColor("darkGreen");
+        c.setStroke(3);
+      } else if ( Cover.cover != null &&
+        (Cover.cover.contains(u) || Cover.cover.contains(v))) {
+        c.setColor("lightGreen");
+        c.setStroke(2);			
+      } else {
+        c.setColor("default");
+        c.setStroke(1);
+      }
+      c.drawLine(u, v);
+		}
+    c.setColor("default");
+    c.setStroke(1);
+    
+    // drawing points
+    for (Point v : vertices) {
+      boolean filled = !Exact.currentCover.contains(v);
+      if (v == Cover.u || v == Cover.v) {
+  			c.drawPoint(v, "orange", 1.5, filled);
+      } else if (Cover.cover != null && Cover.cover.contains(v)) {
+  			c.drawPoint(v, "purple", 1.5, filled);
+      } else {
+  			c.drawPoint(v, "default", 1, filled);
+      }
+		}
+  }
 }

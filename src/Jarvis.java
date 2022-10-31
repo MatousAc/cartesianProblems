@@ -2,7 +2,6 @@
 // https://bitbucket.org/StableSort/play/src/master/src/com/stablesort/convexhull/ConvexHullJarvisMarch.java
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import enums.ChHeur;
 
 /**
@@ -22,8 +21,8 @@ public class Jarvis extends Hull {
 	 */
 	public static void march() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
-		start = findStartPoint(pointCopy);
     if (Hull.heuristic == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
+		start = findStartPoint(pointCopy); Core.show();
 
 		P = new Point(start.x, start.y - 1); 
 		Q = start; next = start;
@@ -56,6 +55,5 @@ public class Jarvis extends Hull {
 			if (next == start) break;
 		}
 		next = null;
-		cleanup();
 	}
 }

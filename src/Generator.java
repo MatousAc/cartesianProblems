@@ -19,7 +19,7 @@ public class Generator {
 	 */
 	public static void generateProblem() {
 		Core.prob.unsolve();
-		ArrayList<Point> dest = Core.prob.getPointDestination();
+		ArrayList<Point> dest = Core.prob.getPoints();
 		
 		if (!Core.isAuto() && fx == GenFx.RADIAL) {
 			radialScreen(dest);

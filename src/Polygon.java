@@ -3,15 +3,19 @@ import java.util.Iterator;
 
 class Polygon {
   private ArrayList<Point> points = new ArrayList<Point>();
-
-  public boolean add(Point p) { return points.add(p); }
-
-  public void erase() { points.clear(); }
-
-  /** Returns Iterator to the points that define the Polygon */
-  public Iterator<Point> iterator() { return points.iterator(); }
+  /** Indicates whether the polygon is closed or not. */
+  private boolean closed = false;
 
   public boolean isEmpty() { return points.size() == 0; }
+
+  public void close() { closed = true; }
+
+  public boolean isClosed() { return closed; }
+
+  public void erase() {
+    points.clear();
+    closed = false;
+  }
 
   /**
    * Return true if the given point is contained inside the boundary.
@@ -20,7 +24,7 @@ class Polygon {
    * @return true if the point is inside the boundary, false otherwise
    *
    */
-  public boolean contains(Point p) {
+  public boolean surrounds(Point p) {
     if (points.contains(p)) return false;
     int i;
     int j;
@@ -35,4 +39,15 @@ class Polygon {
     }
     return result;
   }
+
+  /// functions that expose necessary ArrayList functions
+  public int size() { return points.size(); }
+  public Point get(int i) { return points.get(i); }
+  public boolean add(Point p) { return points.add(p); }
+  public Point remove(int i) { return points.remove(i); }
+  public boolean remove(Point p) { return points.remove(p); }
+  public boolean contains(Point p) { return points.contains(p); }
+
+  /** Returns Iterator to the points that define the Polygon */
+  public Iterator<Point> iterator() { return points.iterator(); }
 }

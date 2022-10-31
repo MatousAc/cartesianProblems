@@ -21,6 +21,7 @@ public interface Problem {
 	 */
   public void test();
 
+  /// utility f(x)s ///
   /** For automatic testing and data generation,
    * returns the CSV header line for this problem.
    */
@@ -35,7 +36,6 @@ public interface Problem {
    */
   public String getData(Double duration);
 
-  /// utility f(x)s
 	/** Moves to the next algorithm that can solve this problem. */ 
 	public void nextAlg();
 
@@ -63,5 +63,9 @@ public interface Problem {
   public String heurAsString();
 
   /** @return the destination to which points should be added  */
-  public ArrayList<Point> getPointDestination();
+  public ArrayList<Point> getPoints();
+
+  /// delegation f(x)s ///
+  /** Delegates what to do to draw the current problem. */
+  public void paint(Canvass canvass);
 }

@@ -6,7 +6,9 @@ import enums.*;
 public class Core {
 	/** The GUI for visualizing the algorithms. */
 	protected static Canvass canvass;
+  /** The mode the program will run in. */
 	static Mode mode;
+  /** Indicates speed at which to show algorithm progression. */
 	static Speed speed = Speed.UNRESTRAINED;
 	static int maxSize = 0;
   /** The problem that is currently being solved. */
@@ -38,9 +40,10 @@ public class Core {
 	static void show() {
 		if (isAuto()) return;
 		canvass.repaint();
-		Canvass.wait(Canvass.getDelay());
+		canvass.wait(canvass.getDelay());
 	}
 
+  /** Assigns prob to next problem. */
   static void nextProblem() {
     if (prob instanceof Hull) {
       prob = new Cover();

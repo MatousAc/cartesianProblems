@@ -21,8 +21,8 @@ public class Graham extends Hull{
 	public static void scan() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
     if (Hull.heuristic == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
-		start = findStartPoint(pointCopy);
-		Core.show();
+		start = findStartPoint(pointCopy); Core.show();
+    
 		// sort with custom comparer
 		Collections.sort(pointCopy, slopeCompare);
 		m1 = null; m2 = null;
@@ -44,7 +44,6 @@ public class Graham extends Hull{
 			hull.remove(Q);
 			newPQR(); Core.show(); // new last 3 points
 		}
-		cleanup(); Core.show();
 	}
 
 	/**
