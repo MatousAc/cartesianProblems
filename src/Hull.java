@@ -128,16 +128,43 @@ public class Hull implements Problem {
 		return leftBottom;
 	}
 
+  public static void performHeuristic(ArrayList<Point> points) {
+    if (Hull.heuristic != ChHeur.NO_HEURISTIC) {
+      aklToussaint(points);
+    }
+  }
+  
   protected static void aklToussaint(ArrayList<Point> points) {
+    boolean isOct = (heuristic == ChHeur.AKL_OCTAHEDRAL);
     poly.erase();
     Point xMin = Collections.min(points, xCompare);
-    Point yMin = Collections.min(points, yCompare);
-    Point xMax = Collections.max(points, xCompare);
-    Point yMax = Collections.max(points, yCompare);
     poly.add(xMin); Core.show();
+    if (isOct) {
+      Point lowLeft = Collections.min(points, xyCompare);
+      poly.add(lowLeft); Core.show();
+    }
+
+    Point yMin = Collections.min(points, yCompare);
     poly.add(yMin); Core.show();
+    if (isOct) {
+      Point lowRight = Collections.min(points, negXposY);
+      poly.add(lowRight); Core.show();
+    }
+    
+    Point xMax = Collections.max(points, xCompare);
     poly.add(xMax); Core.show();
+    if (isOct) {
+      Point upperRight = Collections.max(points, xyCompare);
+      poly.add(upperRight); Core.show();
+    }
+
+    Point yMax = Collections.max(points, yCompare);
     poly.add(yMax); Core.show();
+    if (isOct) {
+      Point upperLeft = Collections.max(points, negXposY);
+      poly.add(upperLeft); Core.show();
+    }
+
     poly.close(); Core.show();
 
     Iterator<Point> iter = points.iterator();
@@ -148,11 +175,24 @@ public class Hull implements Problem {
     }
   }
   
- static Comparator<Point> xCompare = (Point p1, Point p2) -> 
-   ((Double)p1.x).compareTo(p2.x);
+  static Comparator<Point> xCompare = (Point p1, Point p2) -> 
+    ((Double)p1.x).compareTo(p2.x);
 
   static Comparator<Point> yCompare = (Point p1, Point p2) -> 
     ((Double)p1.y).compareTo(p2.y);
+
+  static Comparator<Point> xyCompare = (Point p1, Point p2) -> 
+    ((Double) (p1.x + p1.y)).compareTo(p2.x + p2.y);
+
+  static Comparator<Point> negXposY = (Point p1, Point p2) -> 
+    ((Double) (-p1.x + p1.y)).compareTo(-p2.x + p2.y);
+
+
+  // static Comparator<Point> highRight = (Point p1, Point p2) -> 
+  //   ((Double)p1.y).compareTo(p2.y);
+
+  // static Comparator<Point> highLeft = (Point p1, Point p2) -> 
+  //   ((Double)p1.y).compareTo(p2.y);
 
   /// utility f(x)s ///
   public String getDataHead() {

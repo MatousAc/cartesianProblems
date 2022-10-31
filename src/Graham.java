@@ -20,7 +20,7 @@ public class Graham extends Hull{
 	 */
 	public static void scan() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
-    if (Hull.heuristic == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
+    performHeuristic(pointCopy);
 		start = findStartPoint(pointCopy); Core.show();
     
 		// sort with custom comparer

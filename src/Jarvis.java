@@ -21,7 +21,7 @@ public class Jarvis extends Hull {
 	 */
 	public static void march() {
 		ArrayList<Point> pointCopy = (ArrayList<Point>) points.clone();
-    if (Hull.heuristic == ChHeur.AKL_TOUSSAINT) aklToussaint(pointCopy);
+    performHeuristic(pointCopy);
 		start = findStartPoint(pointCopy); Core.show();
 
 		P = new Point(start.x, start.y - 1); 

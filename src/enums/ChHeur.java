@@ -1,7 +1,8 @@
 package enums;
 public enum ChHeur {
 	NO_HEURISTIC,
-	AKL_TOUSSAINT {
+	AKL_QUADRILATERAL,
+  AKL_OCTAHEDRAL {
 		@Override
 		public ChHeur next() {
 				return NO_HEURISTIC;
