@@ -13,7 +13,7 @@ As shown above, two algorithms can be chosen to solve the convex hull, the **Gra
 Due to their intriguing impacts on algorithm performance, three distributions of point generation can be chosen (shown below).
 Radial|Rectangular|Circular
 :-------------------------:|:-------------------------:|:-------------------------
-![Radial Generation.](./assets/radialGeneration.png)|![Rectangular Generation.](./assets/rectangularGen.png)|![Circular Generation.](./assets/circularGeneration.png)
+![Radial Generation.](./assets/radialGeneration.png)|![Rectangular Generation.](./assets/rectangularGeneration.png)|![Circular Generation.](./assets/circularGeneration.png)
 
 For finding the minimum vertex cover, two variants of the typical exact **brute force** solution are implemented. Also, two versions of the popular **Two's Approximation** are available. Below is an example of the brute force algorithm mid-solve.
 ![Minimum Vertex Cover being solved by the brute force algorithm.](./assets/vertexCoverBeingSolved.png)
